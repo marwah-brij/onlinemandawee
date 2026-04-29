@@ -298,6 +298,19 @@ export function V1ClassicHome() {
   return (
     <div className="min-h-screen bg-white" dir={isRtl ? "rtl" : "ltr"}>
       {/* ── HERO CAROUSEL ─────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 pb-2 pt-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-500">
+          <span className="mr-1 text-sm font-bold text-slate-700">Home Variants</span>
+          <span className="rounded-full bg-[var(--secondary)] px-3 py-1 text-white">V1</span>
+          <Link href={`/${locale}/home-v2`} className="rounded-full bg-slate-100 px-3 py-1 text-slate-600 hover:bg-slate-200">
+            V2
+          </Link>
+          <Link href={`/${locale}/home-v3`} className="rounded-full bg-slate-100 px-3 py-1 text-slate-600 hover:bg-slate-200">
+            V3
+          </Link>
+        </div>
+      </section>
+
       <section
         className="relative overflow-hidden"
         style={{ height: "clamp(280px, 48vh, 520px)" }}

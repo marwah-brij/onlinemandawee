@@ -256,13 +256,13 @@ export function HomeV1() {
   };
 
   // Touch gesture handling for mobile swipe
-  const handleTouchStart = useCallback((e: React.TouchEvent, scrollRef: React.RefObject<HTMLDivElement>) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent, scrollRef: React.RefObject<HTMLDivElement | null>) => {
     if (!scrollRef.current) return;
     const touch = e.touches[0];
     (scrollRef.current as any).touchStartX = touch.clientX;
   }, []);
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent, scrollRef: React.RefObject<HTMLDivElement>, scrollAmount: number) => {
+  const handleTouchEnd = useCallback((e: React.TouchEvent, scrollRef: React.RefObject<HTMLDivElement | null>, scrollAmount: number) => {
     if (!scrollRef.current) return;
     const touch = e.changedTouches[0];
     const touchEndX = touch.clientX;

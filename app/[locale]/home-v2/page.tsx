@@ -1,5 +1,5 @@
-import { V2MinimalHome } from "@/components/home/variants/V2MinimalHome";
+import { HomeV2 } from "@/components/home/HomeV2";
 
 export default function HomeV2Page() {
-  return <V2MinimalHome />;
+  return <HomeV2 />;
 }
