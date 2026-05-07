@@ -2,345 +2,157 @@
   "Homepage": {
     "direction": "rtl",
     "navbar": {
-      "searchPlaceholder": "هدایا، مواد خوراکی، گل‌ها و بیشتر را جستجو کنید",
-      "searchButton": "جستجو",
-      "languageLabel": "زبان",
-      "currencyLabel": "USD",
-      "accountLabel": "حساب",
-      "cartLabel": "سبد",
-      "languages": [
-        { "code": "en", "label": "EN" },
-        { "code": "ps", "label": "پښتو" },
-        { "code": "fa-AF", "label": "دری" }
-      ]
+      "searchPlaceholder": "فروشگاه را جستجو کنید",
+      "cartLabel": "سبد"
     },
-    "hero": {
-      "eyebrow": "بازار ممتاز چندفروشنده برای هدیه و خرید",
-      "title": "برای خانواده‌تان در هرجا عشق بفرستید",
-      "description": "هدایای ممتاز، نیازمندی‌های تازه و فروشندگان معتبر را در یک بازار شیک پیدا کنید که برای ارسال‌های معنادار ساخته شده است.",
-      "primaryCta": "شروع خرید",
-      "secondaryCta": "فروشنده شوید",
-      "stats": [
-        { "value": "25k+", "label": "مشتریان خوشحال" },
-        { "value": "800+", "label": "فروشندگان تأییدشده" },
-        { "value": "همان روز", "label": "تحویل سریع" }
+    "store": {
+      "promo": "تحویل رایگان برای سفارش‌های بالای $100",
+      "tagline": "ارسال نیازهای روزانه خانواده با راحتی بیشتر.",
+      "shopByCategory": "خرید بر اساس دسته",
+      "featuredTitle": "منتخب محبوب برای آشپزخانه شما",
+      "addToCart": "افزودن به سبد",
+      "addedToCart": "به سبد اضافه شد",
+      "addError": "افزودن نشد — دوباره تلاش کنید",
+      "unitPrice": "قیمت واحد",
+      "per": "/ برای هر",
+      "heroSlides": [
+        {
+          "image": "https://onlinemandawee.com/cdn/shop/files/Add_a_heading.png?v=1766240466&width=2048",
+          "headline": "غذای تازه برای زندگی سالم",
+          "sub": "",
+          "cta": "همین الآن خرید",
+          "href": "/products"
+        }
       ],
-      "floatingTopEyebrow": "شادی همان روز",
-      "floatingTopTitle": "هدایای آماده‌شده در چند ساعت",
-      "floatingBottomEyebrow": "مورد اعتماد خانواده‌ها",
-      "floatingBottomTitle": "ارسال جهانی ساده شده است"
-    },
-    "categoriesSection": {
-      "eyebrow": "بر اساس علاقه کشف کنید",
-      "title": "هر چیزی که خانواده‌تان نیاز دارد، زیبا و منظم",
-      "description": "دسته‌بندی‌های ممتاز را ببینید که برای هدیه، مواد خوراکی، جشن و بسته‌های مراقبتی طراحی شده‌اند."
-    },
-    "categoryCarousel": {
-      "title": "خرید بر اساس دسته‌بندی",
-      "swipeHint": "برای دیدن، سوایپ یا کلیک کنید",
-      "swipeLabel": "سوایپ",
-      "items": [
-        "اقلام صبحانه",
-        "مواد خوراکی",
-        "اسنک بار",
-        "نوشیدنی‌ها",
-        "میوه‌ها",
-        "سبزیجات",
-        "لبنیات",
-        "محصولات نظافتی",
-        "مراقبت نوزاد",
-        "مراقبت شخصی",
-        "پروتئین وی",
-        "اقلام قرطاسیه"
+      "midPromoSlides": [
+        {
+          "ribbon": "پیشنهاد هفته",
+          "title": "روغن، غلات و تنقلات ذخیره کنید",
+          "subtitle": "همه آنچه خانه روزانه نیاز دارد.",
+          "cta": "خرید خوراکی",
+          "href": "/category/grocery",
+          "imageKey": "pantry",
+          "imageSrc": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=85"
+        },
+        {
+          "ribbon": "مراقبت از خانه",
+          "title": "هر اتاق درخشان",
+          "subtitle": "پودر، مایع ظرفشویی و خوشبوکننده‌ها.",
+          "cta": "بخش نظافت",
+          "href": "/category/cleaning-products",
+          "imageKey": "clean",
+          "imageSrc": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=85"
+        }
+      ],
+      "categoryTiles": [
+        {
+          "slug": "breakfast",
+          "href": "/category/breakfast",
+          "image": "/categories/breakfastItems.webp",
+          "label": "اقلام صبحانه",
+          "tint": "#fff8e7"
+        },
+        {
+          "slug": "grocery",
+          "href": "/category/grocery",
+          "image": "/categories/edibleGrocery.webp",
+          "label": "خوراکی / مواد خوراکی",
+          "tint": "#efe6d8"
+        },
+        {
+          "slug": "snacks",
+          "href": "/category/snacks",
+          "image": "/categories/snackBar.webp",
+          "label": "اسنک بار",
+          "tint": "#fffbeb"
+        },
+        {
+          "slug": "beverages",
+          "href": "/category/beverages",
+          "image": "/categories/beverages.webp",
+          "label": "نوشیدنی‌ها",
+          "tint": "#ffe4d4"
+        },
+        {
+          "slug": "fruits",
+          "href": "/category/fruits",
+          "image": "/categories/fruits.webp",
+          "label": "میوه‌ها",
+          "tint": "#ffedd5"
+        },
+        {
+          "slug": "vegetables",
+          "href": "/category/vegetables",
+          "image": "/categories/vegetables.webp",
+          "label": "سبزیجات",
+          "tint": "#fef9c3"
+        },
+        {
+          "slug": "dairy",
+          "href": "/category/dairy",
+          "image": "/categories/dairyProducts.webp",
+          "label": "لبنیات",
+          "tint": "#f1f5f9"
+        },
+        {
+          "slug": "cleaning-products",
+          "href": "/category/cleaning-products",
+          "image": "/categories/cleaningProducts.webp",
+          "label": "محصولات نظافتی",
+          "tint": "#e0f2fe"
+        },
+        {
+          "slug": "baby-care",
+          "href": "/category/baby-care",
+          "image": "/categories/babyCare.webp",
+          "label": "مراقبت نوزاد",
+          "tint": "#fce7f3"
+        },
+        {
+          "slug": "personal-care",
+          "href": "/category/personal-care",
+          "image": "/categories/personalCare.webp",
+          "label": "مراقبت شخصی",
+          "tint": "#fae8ff"
+        },
+        {
+          "slug": "whey-proteins",
+          "href": "/category/whey-proteins",
+          "image": "/categories/wheyProteins.webp",
+          "label": "پروتئین وی",
+          "tint": "#ecfdf5"
+        },
+        {
+          "slug": "stationery-items",
+          "href": "/category/stationery-items",
+          "image": "/categories/stationaryItems.webp",
+          "label": "اقلام قرطاسیه",
+          "tint": "#f3f4f6"
+        }
       ]
     },
-    "categories": [
-      {
-        "title": "مواد خوراکی تازه",
-        "description": "نیازهای روزانه از فروشگاه‌های محلی معتبر.",
-        "iconKey": "basket"
-      },
-      {
-        "title": "بسته‌های لوکس",
-        "description": "بسته‌های انتخاب‌شده برای لحظه‌های خاص خانواده.",
-        "iconKey": "gift"
-      },
-      {
-        "title": "گل‌ها",
-        "description": "دسته‌گل‌های شیک با دقت تحویل می‌شوند.",
-        "iconKey": "flower"
-      },
-      {
-        "title": "کیک و شیرینی",
-        "description": "تولدها و مناسبت‌ها را زیباتر جشن بگیرید.",
-        "iconKey": "cake"
-      },
-      {
-        "title": "میز خانواده",
-        "description": "انتخاب‌های باکیفیت برای مهمانی و غذای خانگی.",
-        "iconKey": "plate"
-      },
-      {
-        "title": "هدایای فشن",
-        "description": "لباس‌ها و اکسسوری‌های بافکر.",
-        "iconKey": "sparkles"
-      },
-      {
-        "title": "سلامتی",
-        "description": "بسته‌های مراقبتی ممتاز برای عزیزانتان.",
-        "iconKey": "heartShield"
-      },
-      {
-        "title": "تکنالوژی و گجت",
-        "description": "وسایل کاربردی که فاصله را کمتر می‌کنند.",
-        "iconKey": "device"
-      }
-    ],
-    "featuredSection": {
-      "eyebrow": "انتخاب‌های ویژه",
-      "title": "محصولات ویژه‌ای که عزیزانتان به یاد می‌سپارند",
-      "description": "یافته‌های ممتاز و آماده‌هدیه از فروشندگان معتبر بازار.",
-      "viewAll": "دیدن همه",
-      "addToCart": "افزودن به سبد"
-    },
-    "vendorsSection": {
-      "eyebrow": "بازار قابل اعتماد",
-      "title": "فروشندگان برتر با کیفیت ثابت",
-      "description": "از فروشندگان انتخاب‌شده خرید کنید که ارائه ممتاز و خدمات قابل اعتماد دارند."
-    },
-    "topVendors": [
-      {
-        "name": "Noor Premium Gifts",
-        "specialty": "هدایای لوکس و انتخاب‌شده",
-        "accent": "from-rose-100 to-white",
-        "metricLabel": "سفارش‌های تکمیل‌شده",
-        "metricValue": "12k+"
-      },
-      {
-        "name": "Bloom Avenue",
-        "specialty": "تجربه گل‌های تازه",
-        "accent": "from-red-50 to-white",
-        "metricLabel": "شهرهای تحت پوشش",
-        "metricValue": "36"
-      },
-      {
-        "name": "Saffron Table",
-        "specialty": "غذاهای خانگی و مهمانی",
-        "accent": "from-orange-50 to-white",
-        "metricLabel": "میانگین آماده‌سازی",
-        "metricValue": "45 min"
-      },
-      {
-        "name": "Cocoa Stories",
-        "specialty": "دسر و هدیه‌های شیرین",
-        "accent": "from-neutral-100 to-white",
-        "metricLabel": "سبک‌های بسته‌بندی",
-        "metricValue": "5 styles"
-      }
-    ],
-    "deliverySection": {
-      "eyebrow": "تحویل انعطاف‌پذیر",
-      "title": "روش تحویل دلخواه‌تان را انتخاب کنید",
-      "description": "برای هدیه‌های فوری، سفارش‌های برنامه‌ریزی‌شده و دریافت آسان طراحی شده است."
-    },
-    "deliveryOptions": [
-      {
-        "title": "سریع",
-        "eyebrow": "بیشترین سرعت",
-        "description": "تحویل اولویت‌دار برای سورپرایزهای همان روز و هدیه‌های فوری.",
-        "iconKey": "rocket"
-      },
-      {
-        "title": "معیاری",
-        "eyebrow": "بهترین ارزش",
-        "description": "هزینه متعادل تحویل برای ارسال‌های روزمره خانوادگی.",
-        "iconKey": "deliveryTruck"
-      },
-      {
-        "title": "دریافت حضوری",
-        "eyebrow": "گزینه رایگان",
-        "description": "از قبل سفارش بدهید و از محل فروشنده دلخواه‌تان دریافت کنید.",
-        "iconKey": "storefront"
-      }
-    ],
-    "giftingBanner": {
-      "eyebrow": "هدیه‌دادن با فکر",
-      "title": "برای عزیزانتان هدیه‌های سفارشی بسازید",
-      "description": "بسته‌های ماندگار را شخصی‌سازی کنید، پیام‌های صمیمانه بیفزایید و بگذارید فروشندگان معتبر همه چیز را با دقت آماده کنند.",
-      "primaryCta": "شروع شخصی‌سازی",
-      "secondaryCta": "دیدن ایده‌های هدیه",
-      "addOnsTitle": "افزونه‌های محبوب",
-      "addOnsDescription": "گل‌ها، کارت‌های دست‌نویس، بسته‌بندی ممتاز",
-      "collaborationTitle": "همکاری فروشندگان",
-      "collaborationDescription": "یک هدیه یکپارچه از چند فروشگاه بسازید"
-    },
-    "trustSection": {
-      "eyebrow": "چرا مشتریان به ما اعتماد دارند",
-      "title": "بازاری بر پایه کیفیت و آرامش خاطر",
-      "description": "هر تعامل طوری طراحی شده که ممتاز، قابل اعتماد و آسان باشد."
-    },
-    "trustItems": [
-      {
-        "title": "پرداخت امن",
-        "description": "تجربه چک‌اوت محافظت‌شده برای هر سفارش.",
-        "iconKey": "lock"
-      },
-      {
-        "title": "فروشندگان تأییدشده",
-        "description": "فروشندگان با دقت بررسی‌شده با معیارهای قابل اعتماد.",
-        "iconKey": "checkBadge"
-      },
-      {
-        "title": "تحویل سریع",
-        "description": "گزینه‌های منعطف برای تحویل فوری و زمان‌بندی‌شده.",
-        "iconKey": "flash"
-      },
-      {
-        "title": "استرداد آسان",
-        "description": "روند روشن برای حل مشکل و بازپرداخت در صورت نیاز.",
-        "iconKey": "refresh"
-      }
-    ],
+
     "footer": {
-      "tagline": "بازار ممتاز چندفروشنده",
-      "description": "هدایا، نیازهای ممتاز و سورپرایزهای انتخاب‌شده را با اطمینان برای عزیزانتان بفرستید.",
+      "description": "بازار.",
       "columns": [
         {
           "title": "شرکت",
-          "links": ["درباره منداوی", "چگونه کار می‌کند", "برنامه فروشندگان", "فرصت‌های شغلی"]
+          "links": ["درباره منداوی", "چگونه کار می‌کند", "برنامه فروشنده", "فرصت‌های شغلی"]
         },
         {
           "title": "پشتیبانی",
-          "links": ["مرکز کمک", "تماس با ما", "پیگیری سفارش", "مناطق تحویل"]
+          "links": ["مرکز راهنمایی", "تماس با ما", "پیگیری سفارش", "مناطق تحویل"]
         },
         {
-          "title": "پالیسی‌ها",
-          "links": ["پالیسی محرمیت", "شرایط خدمات", "پالیسی بازپرداخت", "شرایط فروشندگان"]
+          "title": "سیاست‌ها",
+          "links": ["حریم خصوصی", "شرایط استفاده", "بازپرداخت", "شرایط فروشنده"]
         },
         {
           "title": "شبکه‌های اجتماعی",
           "links": ["Instagram", "Facebook", "TikTok", "LinkedIn"]
         }
       ],
-      "copyright": "© 2026 Mandawee. برای ارتباط‌های معنادار ساخته شده است."
-    }
-  },
-  "HomeV2": {
-    "categories": {
-      "title": "خرید بر اساس دسته‌بندی",
-      "subtitle": "انتخاب گسترده محصولات ما را ببینید",
-      "shop": "خرید",
-      "exploreAll": "همه دسته‌بندی‌ها"
-    },
-    "products": {
-      "title": "همه محصولات",
-      "results": "نتیجه",
-      "sort": {
-        "featured": "مرتب‌سازی: ویژه",
-        "lowToHigh": "قیمت: کم به زیاد",
-        "highToLow": "قیمت: زیاد به کم",
-        "highestRated": "بالاترین امتیاز"
-      }
-    },
-    "sections": {
-      "topDeals": "بهترین تخفیف‌ها",
-      "bestSelling": "پرفروش‌ترین‌ها",
-      "freshPicks": "انتخاب‌های تازه",
-      "trending": "محصولات ترند",
-      "trendingBadge": "ترند",
-      "viewAll": "دیدن همه"
-    },
-    "promo": {
-      "title": "پیشنهاد ویژه آخر هفته!",
-      "description": "تا 30٪ تخفیف روی دسته‌بندی‌های منتخب.",
-      "cta": "خرید کنید",
-      "offBadge": "۳۰٪ تخفیف"
-    },
-    "why": {
-      "title": "چرا خریداران منداوی را انتخاب می‌کنند",
-      "items": [
-        { "title": "تحویل سریع", "desc": "تحویل همان روز برای اقلام منتخب" },
-        { "title": "فروشندگان تاییدشده", "desc": "فروشگاه‌های قابل اعتماد با معیار کیفیت" },
-        { "title": "پیشنهادهای روزانه", "desc": "پروموشن‌های تازه و محدود" },
-        { "title": "تسویه آسان", "desc": "سبد سریع و پرداخت امن" }
-      ]
-    },
-    "heroSlides": [
-      { "alt": "مواد خوراکی تازه", "title": "مواد خوراکی تازه، تحویل سریع", "subtitle": "روی همه محصولات تازه ۲۰٪ تخفیف بگیرید", "cta": "همین حالا خرید کنید", "discount": "۲۰٪ تخفیف" },
-      { "alt": "مراقبت نوزاد", "title": "لوازم ضروری مراقبت نوزاد", "subtitle": "هر آنچه کودک شما نیاز دارد", "cta": "کاوش", "discount": "۱۵٪ تخفیف" },
-      { "alt": "پیشنهادهای ویژه", "title": "پیشنهادهای ویژه هفتگی", "subtitle": "روی اقلام موردعلاقه‌تان بیشتر صرفه‌جویی کنید", "cta": "دیدن تخفیف‌ها", "discount": "تا ۵۰٪ تخفیف" }
-    ],
-    "categoryItems": [
-      "اقلام صبحانه",
-      "خواربار خوراکی",
-      "اسنک‌بار",
-      "نوشیدنی‌ها",
-      "میوه‌ها",
-      "سبزیجات",
-      "لبنیات",
-      "مراقبت نوزاد"
-    ],
-    "filters": {
-      "title": "فیلترها",
-      "clearAll": "پاک‌کردن همه",
-      "categoryTitle": "دسته‌بندی‌ها",
-      "priceRange": "بازه قیمت",
-      "min": "حداقل",
-      "max": "حداکثر",
-      "availability": "موجودیت",
-      "inStock": "موجود در انبار",
-      "onSale": "دارای تخفیف",
-      "apply": "اعمال فیلترها",
-      "categories": [
-        "میوه‌ها",
-        "سبزیجات",
-        "لبنیات",
-        "اسنک‌ها",
-        "نوشیدنی‌ها",
-        "مراقبت نوزاد",
-        "مراقبت شخصی",
-        "فیتنس"
-      ]
-    },
-    "productCard": {
-      "inStock": "موجود در انبار",
-      "quickView": "مشاهده سریع",
-      "toggleWishlist": "تغییر لیست علاقه‌مندی"
-    }
-  },
-  "HomeV3": {
-    "slides": [
-      { "title": "مواد خوراکی تازه، تحویل روزانه", "sub": "محصولات باکیفیت از فروشندگان محلی معتبر", "cta": "همین حالا خرید کنید", "discount": "تا ۴۰٪ تخفیف" },
-      { "title": "محصولات ارگانیک و طبیعی", "sub": "انتخاب‌های سالم برای خانواده شما", "cta": "کاوش", "discount": "پیشنهادهای ویژه" },
-      { "title": "تحویل سریع به درب منزل شما", "sub": "امروز سفارش دهید، فردا تحویل بگیرید", "cta": "همین حالا سفارش دهید", "discount": "ارسال رایگان" }
-    ],
-    "topCategories": ["صبحانه", "خواربار", "اسنک", "نوشیدنی", "میوه", "سبزیجات", "لبنیات", "مراقبت نوزاد"],
-    "trust": ["محصولات ارگانیک", "تحویل سریع", "پرداخت امن", "بهترین صرفه‌جویی"],
-    "featured": { "title": "خواربار ویژه", "subtitle": "محصولات منتخب باکیفیت برای شما" },
-    "banners": [
-      { "eyebrow": "ویژه میوه تازه", "title": "تا ۴۰٪ تخفیف", "subtitle": "محصولات فصلی محبوب" },
-      { "eyebrow": "سبزیجات ارگانیک", "title": "تازه روزانه", "subtitle": "از مزرعه تا سفره" }
-    ],
-    "weekly": { "title": "پرفروش‌ترین‌های هفتگی", "subtitle": "محبوب‌ترین محصولات این هفته", "hot": "داغ" },
-    "trending": { "title": "محصولات ترند", "offBadge": "۲۵٪ تخفیف", "packLabel": "بسته ۵۰۰ گرمی" },
-    "blog": {
-      "title": "آخرین بینش‌های بلاگ",
-      "postTitle": "گرایش شیک: اشتیاق‌تان به همه چیزهای استایل را تقویت کنید",
-      "category": "فشن مدرن",
-      "readDetails": "جزئیات بیشتر"
-    },
-    "why": {
-      "title": "چرا خریداران منداوی را انتخاب می‌کنند",
-      "items": [
-        { "title": "تحویل سریع", "desc": "تحویل همان روز برای اقلام منتخب" },
-        { "title": "فروشندگان تاییدشده", "desc": "فروشگاه‌های قابل اعتماد با معیار کیفیت" },
-        { "title": "پیشنهادهای روزانه", "desc": "پروموشن‌های تازه و محدود" },
-        { "title": "تسویه آسان", "desc": "سبد سریع و پرداخت امن" }
-      ]
-    },
-    "productCard": {
-      "freshQuality": "کیفیت تازه",
-      "add": "افزودن"
+      "copyright": "© ۲۰۲۶ منداوی"
     }
   }
 }

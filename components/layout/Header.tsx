@@ -10,7 +10,6 @@ import { useCart } from "@/store/cart-context";
 import Link from "next/link";
 import {
   Search,
-  MapPin,
   ShoppingBasket,
   ChevronDown,
   Menu,
@@ -123,12 +122,6 @@ const headerCopy: Record<
     sellOnMandawee: string;
     trackOrder: string;
     freeDeliveryAbove100: string;
-    freshDealsDaily: string;
-    freshGroceriesEveryday: string;
-    categories: string;
-    searchProductsPlaceholder: string;
-    deliverToKabul: string;
-    contactUs: string;
   }
 > = {
   en: {
@@ -170,12 +163,6 @@ const headerCopy: Record<
     sellOnMandawee: "Sell on Mandawee",
     trackOrder: "Track Order",
     freeDeliveryAbove100: "Free Delivery on Orders Above $100",
-    freshDealsDaily: "Fresh deals daily · Multi-vendor grocery marketplace",
-    freshGroceriesEveryday: "Fresh groceries everyday",
-    categories: "Categories",
-    searchProductsPlaceholder: "Search for products...",
-    deliverToKabul: "Deliver to Kabul",
-    contactUs: "Contact Us",
   },
   ps: {
     searchSuggestions: [
@@ -216,12 +203,6 @@ const headerCopy: Record<
     sellOnMandawee: "په منډوي کې وپلورئ",
     trackOrder: "فرمایش تعقیب کړئ",
     freeDeliveryAbove100: "د $100 څخه پورته فرمایشونو لپاره وړیا تحویل",
-    freshDealsDaily: "هره ورځ تازه ډیلونه · څو-پلورونکي خوراکي بازار",
-    freshGroceriesEveryday: "هره ورځ تازه خوراکي توکي",
-    categories: "کټګورۍ",
-    searchProductsPlaceholder: "محصولات ولټوئ...",
-    deliverToKabul: "کابل ته تحویل",
-    contactUs: "موږ سره اړیکه",
   },
   "fa-AF": {
     searchSuggestions: [
@@ -262,24 +243,23 @@ const headerCopy: Record<
     sellOnMandawee: "در منداوی بفروشید",
     trackOrder: "پیگیری سفارش",
     freeDeliveryAbove100: "تحویل رایگان برای سفارش‌های بالاتر از $100",
-    freshDealsDaily: "پیشنهادهای تازه روزانه · بازار چندفروشنده خواربار",
-    freshGroceriesEveryday: "مواد خوراکی تازه هر روز",
-    categories: "دسته‌بندی‌ها",
-    searchProductsPlaceholder: "جستجوی محصولات...",
-    deliverToKabul: "تحویل به کابل",
-    contactUs: "تماس با ما",
   },
 };
+
+const PROMO_DISMISS_KEY = "mw-free-delivery-dismiss";
+
+const HEADER_LOGO_SRC =
+  "https://onlinemandawee.com/cdn/shop/files/ON_4_150x.png?v=1763220040";
+
+/** Same as announcement bar – logo row background (not black, not white) */
+const HEADER_BAR_CLASS = "bg-[#0f3460]";
 
 export default function Header() {
   const t = useTranslations("Homepage.navbar");
   const locale = useLocale() as SupportedLocale;
-  const pathname = usePathname();
   const safeLocale: SupportedLocale =
     locale === "ps" || locale === "fa-AF" ? locale : "en";
   const isRtl = safeLocale !== "en";
-  const isV2Home = pathname?.includes("/home-v2");
-  const isV3Home = pathname?.includes("/home-v3");
   const copy = headerCopy[safeLocale];
   const { isAuthenticated } = useAuth();
   const { cart, itemCount, total, removeItem, updateQuantity, refreshCart } = useCart();
@@ -287,8 +267,25 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
-  const [showV2MoreMenu, setShowV2MoreMenu] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showTopPromo, setShowTopPromo] = useState(true);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(PROMO_DISMISS_KEY) === "1") setShowTopPromo(false);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const dismissTopPromo = () => {
+    try {
+      localStorage.setItem(PROMO_DISMISS_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setShowTopPromo(false);
+  };
 
   // Refresh cart when drawer opens
   useEffect(() => {
@@ -307,7 +304,6 @@ export default function Header() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const categoriesRef = useRef<HTMLDivElement>(null);
-  const v2MoreMenuRef = useRef<HTMLDivElement>(null);
 
   // Typewriter effect - stops when user focuses on search
   useEffect(() => {
@@ -347,7 +343,6 @@ export default function Header() {
 
   const closeAll = useCallback(() => {
     setShowCategoriesDropdown(false);
-    setShowV2MoreMenu(false);
     setIsCartOpen(false);
   }, []);
 
@@ -359,737 +354,58 @@ export default function Header() {
       ) {
         setShowCategoriesDropdown(false);
       }
-      if (
-        v2MoreMenuRef.current &&
-        !v2MoreMenuRef.current.contains(event.target as Node)
-      ) {
-        setShowV2MoreMenu(false);
-      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (isV3Home) {
-    return (
-      <>
-        <div className="hidden bg-[var(--green)] text-white md:block">
-          <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 text-xs font-semibold">
-            <p>{copy.freshGroceriesEveryday}</p>
-            <div className="flex items-center gap-4">
-              <Link href="/vendor/register" className="hover:text-white/90">{copy.sellOnMandawee}</Link>
-              <Link href="/track-order" className="hover:text-white/90">{copy.trackOrder}</Link>
-            </div>
-          </div>
-        </div>
-
-        <header dir={isRtl ? "rtl" : "ltr"} className="sticky top-0 z-[100] border-b border-[var(--green)]/20 bg-[var(--footerBg)] shadow-sm">
-          <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4">
-            <div className="flex items-center gap-2">
-              <Link href="/" className="shrink-0">
-                <Image src="/logos/onlinemandawee-logo.png" alt="logo" width={150} height={42} className="h-7 w-auto sm:h-8" />
-              </Link>
-
-              <div className="relative shrink-0" ref={categoriesRef}>
-                <button
-                  onClick={() => setShowCategoriesDropdown((prev) => !prev)}
-                  className="inline-flex items-center gap-2 rounded-md bg-[var(--green)] px-3 py-2 text-sm font-bold text-white"
-                >
-                  <Menu size={15} />
-                  {copy.categories}
-                </button>
-                <AnimatePresence>
-                  {showCategoriesDropdown && (
-                    <motion.div
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute left-0 top-full z-[500] mt-2 w-72 rounded-lg border border-[var(--green)]/20 bg-[var(--footerBg)] p-2 shadow-xl"
-                    >
-                      {[
-                        safeLocale === "en" ? "Breakfast & Dairy" : safeLocale === "ps" ? "ناشته او لبنیات" : "صبحانه و لبنیات",
-                        safeLocale === "en" ? "Meats & Seafood" : safeLocale === "ps" ? "غوښه او سمندري خواړه" : "گوشت و غذاهای دریایی",
-                        safeLocale === "en" ? "Breads & Bakery" : safeLocale === "ps" ? "ډوډۍ او بیکري" : "نان و بیکری",
-                        safeLocale === "en" ? "Chips & Snacks" : safeLocale === "ps" ? "چپس او سنکونه" : "چیپس و اسنک",
-                        safeLocale === "en" ? "Medical Healthcare" : safeLocale === "ps" ? "روغتیايي توکي" : "محصولات صحی",
-                        safeLocale === "en" ? "Frozen Foods" : safeLocale === "ps" ? "یخ وهلي خوراکي" : "مواد غذایی منجمد",
-                        safeLocale === "en" ? "Grocery & Staples" : safeLocale === "ps" ? "پرچون او اساسي توکي" : "خواربار و اقلام ضروری",
-                        safeLocale === "en" ? "Other Items" : safeLocale === "ps" ? "نور توکي" : "سایر اقلام",
-                      ].map((name) => (
-                        <button key={name} className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold text-[var(--foreground)] hover:bg-[var(--green)]/10">
-                          <span>{name}</span>
-                          <span className="grid h-6 w-6 place-items-center rounded-full bg-[var(--green)]/15 text-[var(--green)]">+</span>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <form onSubmit={handleSearch} className="flex min-w-0 flex-1 items-center rounded-md border border-[var(--green)]/20 bg-white px-2 py-1.5">
-                <Search size={16} className="text-[var(--green)]" />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={copy.searchProductsPlaceholder}
-                  className="w-full bg-transparent px-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--green)]/55"
-                />
-                <button type="submit" className="rounded-md bg-[var(--green)] px-3 py-1.5 text-xs font-bold text-white">
-                  {copy.searchButton}
-                </button>
-              </form>
-
-              <div className="hidden md:flex items-center">
-                <LanguageSelector
-                  locale={locale}
-                  label={copy.languageSelect}
-                  isRtl={isRtl}
-                  languages={[
-                    { code: "en", label: "English", flag: "🇺🇸" },
-                    { code: "ps", label: "پښتو", flag: "🇦🇫" },
-                    { code: "fa-AF", label: "دری", flag: "🇦🇫" },
-                  ]}
-                />
-              </div>
-
-              <Link href="/cart" className="relative grid h-10 w-10 place-items-center rounded-full border border-[var(--green)]/25 bg-white text-[var(--green)]">
-                <ShoppingBasket size={18} />
-                {!!itemCount && (
-                  <span className="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center rounded-full bg-[var(--green)] text-[10px] font-black text-white">
-                    {itemCount}
-                  </span>
-                )}
-              </Link>
-
-              {!isAuthenticated && (
-                <button
-                  onClick={handleLogin}
-                  className="hidden md:flex h-10 px-4 rounded-full border border-[var(--green)]/25 bg-white text-[var(--green)] text-sm font-semibold items-center justify-center hover:bg-[var(--green)]/5"
-                >
-                  {copy.login}
-                </button>
-              )}
-
-              <Link
-                href="/vendor/register"
-                className="hidden md:flex h-10 px-4 rounded-full bg-[var(--green)] text-white text-sm font-semibold items-center justify-center hover:brightness-110"
+  return (
+    <>
+      <div className="relative bg-[#0f3460] text-white">
+        <div className="relative mx-auto flex min-h-9 max-w-7xl items-center px-4 py-1 text-xs sm:text-[13px]">
+          {showTopPromo ? (
+            <>
+              <p className="flex-1 px-10 text-center font-semibold leading-tight sm:px-14">
+                {copy.freeDeliveryAbove100}
+              </p>
+              <button
+                type="button"
+                onClick={dismissTopPromo}
+                className={`absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-white/85 transition hover:bg-white/15 hover:text-white ${isRtl ? "left-1.5 sm:left-3" : "right-1.5 sm:right-3"}`}
+                aria-label="Close announcement"
               >
-                {copy.becomeVendor}
+                <X size={15} strokeWidth={2.5} />
+              </button>
+            </>
+          ) : (
+            <div
+              className={`flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 py-1 text-white/90 sm:justify-end ${isRtl ? "sm:flex-row-reverse" : ""}`}
+            >
+              <Link href="/vendor/register" className="font-semibold hover:text-white">
+                {copy.sellOnMandawee}
               </Link>
-            </div>
-
-            <div className="mt-2 grid grid-cols-2 gap-2 md:hidden">
-              {!isAuthenticated && (
-                <button
-                  onClick={handleLogin}
-                  className="h-9 rounded-md border border-[var(--green)]/25 bg-white text-sm font-semibold text-[var(--green)] hover:bg-[var(--green)]/5"
-                >
-                  {copy.login}
-                </button>
-              )}
-              <Link
-                href="/vendor/register"
-                className={`h-9 rounded-md bg-[var(--green)] text-center text-sm font-semibold leading-9 text-white hover:brightness-110 ${!isAuthenticated ? "" : "col-span-2"}`}
-              >
-                {copy.becomeVendor}
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        <nav className="border-b border-[var(--green)]/20 bg-white">
-          <div className="mx-auto flex h-11 max-w-7xl items-center gap-6 overflow-x-auto px-4 text-sm font-semibold text-[var(--foreground)] no-scrollbar">
-            <Link href="/" className="shrink-0 hover:text-[var(--green)]">{copy.home}</Link>
-            <Link href="/products" className="shrink-0 hover:text-[var(--green)]">{copy.products}</Link>
-            <Link href="/deals" className="shrink-0 hover:text-[var(--green)]">{copy.dailyDeals}</Link>
-            <Link href="/gifts" className="shrink-0 hover:text-[var(--green)]">{copy.giftSets}</Link>
-            <Link href="/contact" className="shrink-0 hover:text-[var(--green)]">{copy.contactUs}</Link>
-          </div>
-        </nav>
-      </>
-    );
-  }
-
-  if (isV2Home) {
-    return (
-      <>
-        <div className="hidden bg-[var(--secondary)] text-white md:block">
-          <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 text-xs">
-            <p className="font-semibold">{copy.freshDealsDaily}</p>
-            <div className="flex items-center gap-4 text-white/90">
-              <Link href="/vendor/register" className="hover:text-white">
-                {copy.becomeVendor}
-              </Link>
-              <Link href="/track-order" className="hover:text-white">
+              <Link href="/track-order" className="font-semibold hover:text-white">
                 {copy.trackOrder}
               </Link>
             </div>
-          </div>
-        </div>
-
-        <header
-          dir={isRtl ? "rtl" : "ltr"}
-          className="sticky top-0 z-[9998] border-b border-slate-200 bg-white shadow-sm overflow-x-clip"
-        >
-          <div className="mx-auto w-full max-w-7xl px-2 py-3 sm:px-4">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="shrink-0">
-                <Image
-                  src="/logos/onlinemandawee-logo.png"
-                  alt="logo"
-                  width={180}
-                  height={52}
-                  className="h-8 sm:h-10 w-auto"
-                  priority
-                />
-              </Link>
-
-              <div className="hidden lg:flex items-center gap-2 rounded-full bg-[var(--footerBg)] px-3 py-2 text-xs font-semibold text-slate-700">
-                <MapPin size={14} className="text-[var(--secondary)]" />
-                {copy.deliverToKabul}
-              </div>
-
-              <form
-                onSubmit={handleSearch}
-                className={`flex min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--secondary)]/20 bg-[var(--footerBg)] px-2 h-11 ${isRtl ? "pr-4" : "pl-4"}`}
-              >
-                <Search className="text-[var(--secondary)] shrink-0" size={18} />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t("searchPlaceholder")}
-                  className="w-full bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400"
-                />
-                <div className="hidden md:flex items-center">
-                  <LanguageSelector
-                    locale={locale}
-                    label={copy.languageSelect}
-                    isRtl={isRtl}
-                    languages={[
-                      { code: "en", label: "English", flag: "🇺🇸" },
-                      { code: "ps", label: "پښتو", flag: "🇦🇫" },
-                      { code: "fa-AF", label: "دری", flag: "🇦🇫" },
-                    ]}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="rounded-full bg-[var(--secondary)] px-4 py-2 text-xs font-bold text-white hover:brightness-110"
-                >
-                  {copy.searchButton}
-                </button>
-              </form>
-
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  onClick={() => setIsCartOpen(true)}
-                  aria-label={t("cartLabel")}
-                  className="relative h-10 w-10 rounded-full border border-[var(--secondary)]/20 bg-white text-[var(--secondary)] hover:bg-[var(--secondary)]/5"
-                >
-                  <span className="absolute inset-0 grid place-items-center">
-                    <ShoppingBasket size={19} />
-                  </span>
-                  {!!itemCount && (
-                    <span className="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center rounded-full bg-[var(--secondary)] text-[10px] font-black text-white">
-                      {itemCount}
-                    </span>
-                  )}
-                </button>
-                {!isAuthenticated && (
-                  <button
-                    onClick={handleLogin}
-                    className="hidden md:flex h-10 px-4 rounded-full border border-[var(--secondary)]/20 text-[var(--secondary)] text-sm font-semibold items-center justify-center hover:bg-[var(--secondary)]/5"
-                  >
-                    {copy.login}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <nav
-          dir={isRtl ? "rtl" : "ltr"}
-          className="relative z-[150] border-b border-slate-200 bg-white text-slate-700"
-        >
-          <div className="mx-auto flex h-12 max-w-7xl items-center gap-2 px-2 sm:gap-3 sm:px-4">
-            <div className="relative shrink-0" ref={categoriesRef}>
-              <button
-                onClick={() => setShowCategoriesDropdown(!showCategoriesDropdown)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--secondary)] px-3 py-2 text-xs font-bold text-white hover:brightness-110 sm:gap-2 sm:px-4"
-              >
-                <Menu size={14} />
-                {copy.categories}
-                <ChevronDown size={14} className={showCategoriesDropdown ? "rotate-180" : ""} />
-              </button>
-              <AnimatePresence>
-                {showCategoriesDropdown && (
-                  <motion.div
-                    variants={dropdownVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className={`absolute top-full z-[400] mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ${
-                      isRtl ? "right-0" : "left-0"
-                    }`}
-                  >
-                    {[
-                      {
-                        href: "/category/breakfast",
-                        label:
-                          safeLocale === "en"
-                            ? "Breakfast Items"
-                            : safeLocale === "ps"
-                              ? "د ناشتې توکي"
-                              : "اقلام صبحانه",
-                        icon: <Croissant size={16} />,
-                      },
-                      {
-                        href: "/category/grocery",
-                        label:
-                          safeLocale === "en"
-                            ? "Edible Grocery"
-                            : safeLocale === "ps"
-                              ? "خوراکي توکي"
-                              : "مواد خوراکی",
-                        icon: <ShoppingBag size={16} />,
-                      },
-                      {
-                        href: "/category/snacks",
-                        label:
-                          safeLocale === "en"
-                            ? "Snack Bar"
-                            : safeLocale === "ps"
-                              ? "سنک بار"
-                              : "اسنک بار",
-                        icon: <Cookie size={16} />,
-                      },
-                      {
-                        href: "/category/beverages",
-                        label:
-                          safeLocale === "en"
-                            ? "Beverages"
-                            : safeLocale === "ps"
-                              ? "مشروبات"
-                              : "نوشیدنی‌ها",
-                        icon: <Wine size={16} />,
-                      },
-                      {
-                        href: "/category/fruits",
-                        label:
-                          safeLocale === "en"
-                            ? "Fruits"
-                            : safeLocale === "ps"
-                              ? "مېوې"
-                              : "میوه‌ها",
-                        icon: <Cherry size={16} />,
-                      },
-                      {
-                        href: "/category/vegetables",
-                        label:
-                          safeLocale === "en"
-                            ? "Vegetables"
-                            : safeLocale === "ps"
-                              ? "سبزیجات"
-                              : "سبزیجات",
-                        icon: <Carrot size={16} />,
-                      },
-                      {
-                        href: "/category/dairy",
-                        label:
-                          safeLocale === "en"
-                            ? "Dairy Products"
-                            : safeLocale === "ps"
-                              ? "لبنیات"
-                              : "لبنیات",
-                        icon: <GlassWater size={16} />,
-                      },
-                      {
-                        href: "/category/cleaning-products",
-                        label:
-                          safeLocale === "en"
-                            ? "Cleaning Products"
-                            : safeLocale === "ps"
-                              ? "د پاکولو توکي"
-                              : "محصولات نظافتی",
-                        icon: <SprayCanIcon size={16} />,
-                      },
-                      { href: "/category/baby-care", label: copy.babyCare, icon: <Baby size={16} /> },
-                      {
-                        href: "/category/personal-care",
-                        label:
-                          safeLocale === "en"
-                            ? "Personal Care"
-                            : safeLocale === "ps"
-                              ? "شخصي پاملرنه"
-                              : "مراقبت شخصی",
-                        icon: <Heart size={16} />,
-                      },
-                      {
-                        href: "/category/whey-proteins",
-                        label:
-                          safeLocale === "en"
-                            ? "Whey Proteins"
-                            : safeLocale === "ps"
-                              ? "وی پروټین"
-                              : "پروتئین وی",
-                        icon: <Dumbbell size={16} />,
-                      },
-                      {
-                        href: "/category/stationery-items",
-                        label:
-                          safeLocale === "en"
-                            ? "Stationery Items"
-                            : safeLocale === "ps"
-                              ? "د قرطاسیه توکي"
-                              : "اقلام قرطاسیه",
-                        icon: <PenTool size={16} />,
-                      },
-                    ].map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={closeAll}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                      >
-                        {item.icon}
-                        {item.label}
-                      </Link>
-                    ))}
-                    <Link
-                      href="/products"
-                      onClick={closeAll}
-                      className="mt-1 flex items-center justify-between rounded-xl px-3 py-2 text-sm font-black text-[var(--secondary)] hover:bg-[var(--secondary)]/10"
-                    >
-                      {copy.discoverEverything}
-                      <ArrowRight size={16} />
-                    </Link>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="flex min-w-0 flex-1 items-center gap-0.5 text-sm font-semibold sm:gap-1">
-              <Link href="/" className="shrink-0 rounded-full px-2 py-1.5 text-[13px] hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)] sm:px-3 sm:text-sm">
-                {copy.home}
-              </Link>
-              <Link href="/products" className="shrink-0 rounded-full px-2 py-1.5 text-[13px] hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)] sm:px-3 sm:text-sm">
-                {copy.products}
-              </Link>
-              <Link href="/deals" className="hidden md:inline-flex shrink-0 rounded-full px-3 py-1.5 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]">
-                {copy.dailyDeals}
-              </Link>
-              <Link href="/gifts" className="hidden md:inline-flex shrink-0 rounded-full px-3 py-1.5 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]">
-                {copy.giftSets}
-              </Link>
-              <Link href="/contact" className="hidden md:inline-flex shrink-0 rounded-full px-3 py-1.5 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]">
-                {copy.support}
-              </Link>
-
-              <div className="relative ml-auto md:hidden" ref={v2MoreMenuRef}>
-                <button
-                  onClick={() => setShowV2MoreMenu((prev) => !prev)}
-                  className="inline-flex items-center gap-1 rounded-full border border-[var(--secondary)]/20 px-2.5 py-1.5 text-[11px] font-bold text-[var(--secondary)] sm:px-3 sm:text-xs"
-                >
-                  {copy.more}
-                  <ChevronDown size={12} className={showV2MoreMenu ? "rotate-180" : ""} />
-                </button>
-                <AnimatePresence>
-                  {showV2MoreMenu && (
-                    <motion.div
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute right-0 top-full z-[450] mt-2 w-44 rounded-xl border border-slate-200 bg-white p-2 shadow-xl"
-                    >
-                      <Link
-                        href="/deals"
-                        onClick={closeAll}
-                        className="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-[var(--secondary)]/10"
-                      >
-                        {copy.dailyDeals}
-                      </Link>
-                      <Link
-                        href="/gifts"
-                        onClick={closeAll}
-                        className="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-[var(--secondary)]/10"
-                      >
-                        {copy.giftSets}
-                      </Link>
-                      <Link
-                        href="/contact"
-                        onClick={closeAll}
-                        className="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-[var(--secondary)]/10"
-                      >
-                        {copy.support}
-                      </Link>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        {/* ================= CART SHEET (MODERN SIDEBAR) ================= */}
-        {isCartOpen &&
-          typeof document !== "undefined" &&
-          createPortal(
-            <div
-              className="overflow-hidden"
-              style={{ position: "fixed", inset: 0, zIndex: 999999 }}
-            >
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => setIsCartOpen(false)}
-                className="bg-black/40 backdrop-blur-sm cursor-pointer"
-                style={{ position: "fixed", inset: 0, zIndex: 999999 }}
-              />
-              {/* Sheet Side Panel */}
-              <motion.div
-                variants={sheetVariants}
-                initial="hidden"
-                animate="visible"
-                className="h-screen w-full max-w-[440px] bg-white shadow-[-20px_0_60px_-15px_rgba(0,0,0,0.25)] flex flex-col"
-                style={{ position: "fixed", top: 0, right: 0, zIndex: 1000000 }}
-              >
-                {/* Header */}
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                  <div className="flex items-center gap-3">
-                    <motion.div
-                      className="bg-[var(--secondary)]/10 p-3 rounded-2xl border border-[var(--secondary)]/20"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ type: "spring", stiffness: 400 }}
-                    >
-                      <ShoppingBasket size={26} className="text-[var(--secondary)]" />
-                    </motion.div>
-                    <div>
-                      <h2 className="text-xl font-black text-gray-900 tracking-tight leading-none">
-                        {copy.yourBasket}
-                      </h2>
-                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                        {itemCount > 0
-                          ? `${itemCount} ${copy.itemsReady}`
-                          : copy.startShopping}
-                      </p>
-                    </div>
-                  </div>
-                  <motion.button
-                    onClick={() => setIsCartOpen(false)}
-                    className="h-11 w-11 flex items-center justify-center hover:bg-gray-100 rounded-full transition-all cursor-pointer group border border-gray-200"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <X
-                      size={22}
-                      className="text-gray-400 group-hover:text-gray-900 transition-colors"
-                    />
-                  </motion.button>
-                </div>
-
-                {/* Cart Content Area */}
-                <div className="flex-1 overflow-y-auto">
-                  {itemCount === 0 ? (
-                    <div className="p-8 flex flex-col items-center justify-center text-center h-full">
-                      <motion.div
-                        className="w-36 h-36 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full flex items-center justify-center mb-6 ring-4 ring-gray-50 shadow-inner"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                      >
-                        <ShoppingBasket
-                          size={60}
-                          className="text-gray-300"
-                          strokeWidth={1.5}
-                        />
-                      </motion.div>
-                      <motion.h3
-                        className="text-2xl font-black text-gray-900 mb-2"
-                        initial={{ y: 10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {copy.basketEmpty}
-                      </motion.h3>
-                      <motion.p
-                        className="text-gray-500 max-w-[280px] text-sm leading-relaxed mb-8"
-                        initial={{ y: 10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        {copy.basketEmptyDesc}
-                      </motion.p>
-                      <motion.div
-                        initial={{ y: 10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                      >
-                        <Link
-                          href="/products"
-                          onClick={() => setIsCartOpen(false)}
-                          className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--secondary)] text-white rounded-full font-bold shadow-[0_10px_30px_-5px_rgba(15,52,96,0.35)] hover:shadow-[0_15px_40px_-5px_rgba(15,52,96,0.45)] hover:-translate-y-0.5 active:scale-95 transition-all"
-                        >
-                          <Search size={18} />
-                          {copy.browseProducts}
-                        </Link>
-                      </motion.div>
-                    </div>
-                  ) : (
-                    <div className="p-4 space-y-4">
-                      {cart.items.map((item) => (
-                        <motion.div
-                          key={item.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex gap-4 p-3 bg-gray-50 rounded-xl"
-                        >
-                          <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={item.productImage}
-                              alt={localizeProductName(
-                                item.productId,
-                                item.productName,
-                                safeLocale,
-                              )}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {localizeProductName(
-                                item.productId,
-                                item.productName,
-                                safeLocale,
-                              )}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              <bdi>{localizeVendor(item.vendor, safeLocale)}</bdi>
-                            </p>
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="font-bold text-gray-900">
-                                ${item.productPrice.toFixed(2)}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200"
-                                >
-                                  -
-                                </button>
-                                <span className="text-sm font-medium w-6 text-center">
-                                  {item.quantity}
-                                </span>
-                                <button
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="text-gray-400 hover:text-[var(--secondary)] self-start"
-                          >
-                            <X size={18} />
-                          </button>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Sticky Footer */}
-                {itemCount > 0 && (
-                  <motion.div
-                    className="p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-bold text-gray-500 uppercase text-xs tracking-widest">
-                        {copy.estimatedTotal}
-                      </span>
-                      <span className="text-2xl font-black text-gray-900">
-                        ${total.toFixed(2)}
-                      </span>
-                    </div>
-                    <Link
-                      href="/cart"
-                      onClick={() => setIsCartOpen(false)}
-                      className="w-full py-4 bg-gray-900 text-white rounded-full font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-black transition-all group"
-                    >
-                      {copy.viewFullBasket}
-                      <ArrowRight
-                        size={18}
-                        className="group-hover:translate-x-1 transition-transform"
-                      />
-                    </Link>
-                  </motion.div>
-                )}
-              </motion.div>
-            </div>,
-            document.body,
           )}
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div
-        className={`hidden text-white md:block ${
-          isV2Home
-            ? "bg-[var(--secondary)]"
-            : "bg-[#0f3460]"
-        }`}
-      >
-        <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 text-xs">
-          <p className="font-semibold">
-            {isV2Home
-              ? copy.freshDealsDaily
-              : copy.freeDeliveryAbove100}
-          </p>
-          <div className="flex items-center gap-4 text-white/90">
-            <Link href="/vendor/register" className="hover:text-white">
-              {copy.sellOnMandawee}
-            </Link>
-            <Link href="/track-order" className="hover:text-white">
-              {copy.trackOrder}
-            </Link>
-          </div>
         </div>
       </div>
       {/* TOP BAR – sticky (logo, search, account, cart) */}
       <header
         dir={isRtl ? "rtl" : "ltr"}
-        className={`sticky top-0 z-[9998] border-b backdrop-blur-xl shadow-sm overflow-x-clip ${
-          isV2Home
-            ? "border-[var(--secondary)]/15 bg-white/90 shadow-[0_8px_24px_rgba(15,52,96,0.12)]"
-            : "border-gray-100 bg-white/95"
-        }`}
+        className={`sticky top-0 z-[9998] overflow-x-clip border-b border-white/15 shadow-[0_4px_20px_rgba(15,52,96,0.35)] ${HEADER_BAR_CLASS}`}
       >
         <div className="mx-auto w-full max-w-7xl px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex min-w-0 flex-nowrap items-center justify-between gap-2 sm:gap-3 md:gap-4">
             {/* LOGO */}
-            <Link
-              href="/"
-              className="flex-shrink-0 order-1"
-            >
+            <Link href="/" className="flex-shrink-0 order-1">
               <Image
-                src="/logos/onlinemandawee-logo.png"
-                alt="logo"
-                width={180}
-                height={52}
-                className="h-7 sm:h-9 md:h-10 lg:h-11 w-auto drop-shadow-sm transition-transform hover:scale-105"
+                src={HEADER_LOGO_SRC}
+                alt="Mandawee"
+                width={220}
+                height={60}
+                className="h-8 w-auto sm:h-9 md:h-10 lg:h-11 transition-opacity hover:opacity-90"
                 priority
               />
             </Link>
@@ -1097,11 +413,7 @@ export default function Header() {
             {/* SEARCH - Desktop & Tablet */}
             <form
               onSubmit={handleSearch}
-              className={`hidden md:flex order-2 min-w-0 flex-1 items-center gap-3 px-2 rounded-full h-11 border transition-all duration-300 group max-w-3xl shadow-sm ${
-                isV2Home
-                  ? "bg-[var(--footerBg)]/80 hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-[var(--secondary)]/20 border-[var(--secondary)]/20"
-                  : "bg-white hover:bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 border-gray-200"
-              } ${isRtl ? "pr-5" : "pl-5"}`}
+              className={`hidden md:flex order-2 min-w-0 flex-1 items-center gap-3 px-2 rounded-full h-11 border border-gray-200 bg-white shadow-sm transition-all duration-300 group max-w-3xl hover:bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 ${isRtl ? "pr-5" : "pl-5"}`}
             >
               <Search
                 className="text-gray-400 group-focus-within:text-primary transition-colors shrink-0"
@@ -1121,11 +433,7 @@ export default function Header() {
               />
               <button
                 type="submit"
-                className={`relative overflow-hidden active:scale-95 text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg transition-all shrink-0 flex items-center gap-2 cursor-pointer ${
-                  isV2Home
-                    ? "bg-[var(--secondary)]"
-                    : "bg-primary"
-                }`}
+                className="relative overflow-hidden active:scale-95 text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg transition-all shrink-0 flex items-center gap-2 cursor-pointer bg-primary"
                 style={
                   {
                     // background: "linear-gradient(135deg, var(--primary) 0%, #991B1B 100%)",
@@ -1143,7 +451,7 @@ export default function Header() {
               {/* Mobile Search Toggle */}
               <button
                 onClick={() => setShowMobileSearch(!showMobileSearch)}
-                className="md:hidden h-9 w-9 flex items-center justify-center rounded-full border border-gray-100 bg-white text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                className="md:hidden h-9 w-9 flex items-center justify-center rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
               >
                 <Search size={19} />
               </button>
@@ -1154,6 +462,7 @@ export default function Header() {
                   locale={locale}
                   label={copy.languageSelect}
                   isRtl={isRtl}
+                  variant="dark"
                   languages={[
                     { code: "en", label: "English", flag: "🇺🇸" },
                     { code: "ps", label: "پښتو", flag: "🇦🇫" },
@@ -1167,7 +476,8 @@ export default function Header() {
                 onClick={() => setIsCartOpen(true)}
                 badge={itemCount?.toString()}
                 aria-label={t("cartLabel")}
-                accent={isV2Home ? "secondary" : "primary"}
+                accent="primary"
+                surface="dark"
               >
                 <ShoppingBasket size={20} />
               </IconButton>
@@ -1176,11 +486,7 @@ export default function Header() {
               {!isAuthenticated && (
                 <button
                   onClick={handleLogin}
-                  className={`hidden md:flex h-9 px-4 rounded-full text-sm font-semibold transition-colors cursor-pointer items-center justify-center ${
-                    isV2Home
-                      ? "bg-white border border-[var(--secondary)]/20 text-[var(--secondary)] hover:bg-[var(--secondary)]/5"
-                      : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                  }`}
+                  className="hidden md:flex h-9 px-4 rounded-full text-sm font-semibold transition-colors cursor-pointer items-center justify-center border border-white/20 bg-white/10 text-white hover:bg-white/20"
                 >
                     {copy.login}
                 </button>
@@ -1189,11 +495,7 @@ export default function Header() {
               {/* Become a Vendor Button - Fourth */}
               <Link
                 href="/vendor/register"
-                className={`hidden md:flex h-9 px-4 rounded-full text-white text-sm font-semibold inline-flex items-center transition-all shadow-sm ${
-                  isV2Home
-                    ? "bg-[var(--secondary)] hover:brightness-110"
-                    : "bg-primary hover:brightness-110"
-                }`}
+                className="hidden md:flex h-9 px-4 rounded-full text-white text-sm font-semibold inline-flex items-center transition-all shadow-sm bg-primary hover:brightness-110"
               >
                 {copy.becomeVendor}
               </Link>
@@ -1247,23 +549,17 @@ export default function Header() {
       {/* PRIMARY NAV – scrolls normally */}
       <nav
         dir={isRtl ? "rtl" : "ltr"}
-        className={`relative z-[9997] overflow-x-clip border-t shadow-[0_6px_16px_rgba(15,23,42,0.2)] ${
-          isV2Home
-            ? "bg-white text-slate-700 border-slate-200 shadow-[0_4px_10px_rgba(15,52,96,0.08)]"
-            : "bg-primary text-white border-white/20"
-        }`}
+        className="relative z-[9997] overflow-x-clip border-b border-gray-200 bg-white text-gray-900 shadow-[0_2px_8px_rgba(15,23,42,0.06)]"
       >
         <div className="max-w-7xl mx-auto px-2 sm:px-4 flex items-center h-12 sm:h-14">
           {/* CATEGORIES BUTTON */}
           <div className="relative flex-shrink-0" ref={categoriesRef}>
             <button
               onClick={() => setShowCategoriesDropdown(!showCategoriesDropdown)}
-              className={`flex items-center gap-1.5 sm:gap-2.5 font-bold h-12 sm:h-14 px-2 sm:px-5 lg:px-6 transition-all duration-300 cursor-pointer border-white/15 ${isRtl ? "border-l" : "border-r"} ${
+              className={`flex items-center gap-1.5 sm:gap-2.5 font-bold h-12 sm:h-14 px-2 sm:px-5 lg:px-6 transition-all duration-300 cursor-pointer text-white border-gray-200 ${isRtl ? "border-l" : "border-r"} ${
                 showCategoriesDropdown
-                  ? `bg-white ${isV2Home ? "text-[var(--secondary)]" : "text-primary"} shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)]`
-                  : isV2Home
-                    ? "bg-[var(--secondary)] text-white border-transparent hover:brightness-110 rounded-lg h-10 sm:h-11 mt-1.5 mb-1.5"
-                    : "bg-black/20 hover:bg-black/35"
+                  ? "bg-primary/90 text-white shadow-inner"
+                  : "bg-primary hover:brightness-110"
               }`}
             >
               <Menu size={18} />
@@ -1272,7 +568,7 @@ export default function Header() {
               </span>
               <ChevronDown
                 size={14}
-                className={`hidden sm:block transition-transform duration-300 opacity-60 ${showCategoriesDropdown ? "rotate-180" : ""}`}
+                className={`hidden sm:block transition-transform duration-300 opacity-90 text-white ${showCategoriesDropdown ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -1392,80 +688,50 @@ export default function Header() {
 
           {/* NAV LINKS */}
           {/* Desktop - All Links */}
-          <div className="hidden lg:flex flex-1 items-center gap-2 px-5 lg:px-7 py-1.5 text-[13px] lg:text-[14px] font-bold">
+          <div className="hidden lg:flex flex-1 items-center gap-2 px-5 lg:px-7 py-1.5 text-[13px] lg:text-[14px] font-bold text-gray-900">
             <Link
               href="/"
-              className={`inline-flex h-8 items-center rounded-md px-3 transition-all ${
-                isV2Home
-                  ? "text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                  : "hover:bg-white/18 hover:text-white"
-              }`}
+              className="inline-flex h-8 items-center rounded-md px-3 transition-all hover:bg-gray-100 hover:text-primary"
             >
               {copy.home}
             </Link>
             <Link
               href="/products"
-              className={`inline-flex h-8 items-center rounded-md px-3 transition-all ${
-                isV2Home
-                  ? "text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                  : "hover:bg-white/18 hover:text-white"
-              }`}
+              className="inline-flex h-8 items-center rounded-md px-3 transition-all hover:bg-gray-100 hover:text-primary"
             >
               {copy.products}
             </Link>
             <Link
               href="/gifts"
-              className={`inline-flex h-8 items-center rounded-md px-3 relative flex items-center gap-2 group transition-all ${
-                isV2Home
-                  ? "text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                  : "hover:bg-white/18 hover:text-white"
-              }`}
+              className="inline-flex h-8 items-center rounded-md px-3 relative flex items-center gap-2 group transition-all hover:bg-gray-100 hover:text-primary"
             >
               {copy.giftSets}
               <span
-                className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter shadow-sm group-hover:scale-110 transition-transform ${
-                  isV2Home ? "text-white bg-[var(--secondary)]" : "text-white"
-                }`}
-                style={isV2Home ? undefined : { backgroundColor: "var(--yellow)" }}
+                className="text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter shadow-sm group-hover:scale-110 transition-transform text-gray-900"
+                style={{ backgroundColor: "var(--yellow)" }}
               >
                 {copy.new}
               </span>
             </Link>
             <Link
               href="/baby-packages"
-              className={`inline-flex h-8 items-center rounded-md px-3 transition-all ${
-                isV2Home
-                  ? "text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                  : "hover:bg-white/18 hover:text-white"
-              }`}
+              className="inline-flex h-8 items-center rounded-md px-3 transition-all hover:bg-gray-100 hover:text-primary"
             >
               {copy.babyCare}
             </Link>
             <Link
               href="/deals"
-              className={`inline-flex h-8 items-center rounded-md px-3 flex items-center gap-1.5 transition-all ${
-                isV2Home
-                  ? "text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                  : "hover:bg-white/18 hover:text-white"
-              }`}
+              className="inline-flex h-8 items-center rounded-md px-3 flex items-center gap-1.5 transition-all hover:bg-gray-100 hover:text-primary"
             >
               <Zap
                 size={15}
-                style={
-                  isV2Home
-                    ? { color: "var(--secondary)", fill: "var(--secondary)" }
-                    : { color: "var(--yellow)", fill: "var(--yellow)" }
-                }
+                style={{ color: "var(--yellow)", fill: "var(--yellow)" }}
               />{" "}
               {copy.dailyDeals}
             </Link>
             <Link
               href="/contact"
-              className={`inline-flex h-8 items-center rounded-md px-3 transition-all ${
-                isV2Home
-                  ? "text-slate-700 hover:bg-[var(--secondary)]/10 hover:text-[var(--secondary)]"
-                  : "hover:bg-white/18 hover:text-white"
-              }`}
+              className="inline-flex h-8 items-center rounded-md px-3 transition-all hover:bg-gray-100 hover:text-primary"
             >
               {copy.support}
             </Link>
@@ -1473,51 +739,51 @@ export default function Header() {
 
           {/* Tablet - Limited Links */}
           <div className="hidden md:flex lg:hidden flex-1 min-w-0 px-2 py-1.5 overflow-visible">
-            <div className="flex w-full min-w-max items-center gap-2 text-[13px] font-bold whitespace-nowrap">
-              <Link href="/" className="inline-flex h-8 items-center rounded-md px-2 whitespace-nowrap transition-all hover:bg-white/18">
+            <div className="flex w-full min-w-max items-center gap-2 text-[13px] font-bold whitespace-nowrap text-gray-900">
+              <Link href="/" className="inline-flex h-8 items-center rounded-md px-2 whitespace-nowrap transition-all hover:bg-gray-100 hover:text-primary">
                 {copy.home}
               </Link>
-              <Link href="/products" className="inline-flex h-8 items-center rounded-md px-2 whitespace-nowrap transition-all hover:bg-white/18">
+              <Link href="/products" className="inline-flex h-8 items-center rounded-md px-2 whitespace-nowrap transition-all hover:bg-gray-100 hover:text-primary">
                 {copy.products}
               </Link>
               <Link
                 href="/gifts"
-                className="inline-flex h-8 items-center rounded-md px-2 relative flex items-center gap-1 whitespace-nowrap transition-all hover:bg-white/18"
+                className="inline-flex h-8 items-center rounded-md px-2 relative flex items-center gap-1 whitespace-nowrap transition-all hover:bg-gray-100 hover:text-primary"
               >
                 {copy.gifts}
                 <span
-                  className="text-white text-[8px] px-1 py-0.5 rounded-full font-black uppercase tracking-tighter"
+                  className="text-gray-900 text-[8px] px-1 py-0.5 rounded-full font-black uppercase tracking-tighter"
                   style={{ backgroundColor: "var(--yellow)" }}
                 >
                   {copy.new}
                 </span>
               </Link>
-              <MobileNavMenu closeAll={closeAll} isRtl={isRtl} />
+              <MobileNavMenu closeAll={closeAll} isRtl={isRtl} surface="light" />
             </div>
           </div>
 
           {/* Mobile - Limited Links + More Button */}
           <div className="flex md:hidden flex-1 min-w-0 px-1 py-1.5 overflow-visible">
-            <div className="flex w-full min-w-0 items-center justify-between gap-1 pr-1 text-[10px] min-[360px]:text-[11px] font-bold whitespace-nowrap">
-              <Link href="/" className="inline-flex h-7 items-center rounded-md px-1 whitespace-nowrap shrink min-w-0 transition-all hover:bg-white/18">
+            <div className="flex w-full min-w-0 items-center justify-between gap-1 pr-1 text-[10px] min-[360px]:text-[11px] font-bold whitespace-nowrap text-gray-900">
+              <Link href="/" className="inline-flex h-7 items-center rounded-md px-1 whitespace-nowrap shrink min-w-0 transition-all hover:bg-gray-100 hover:text-primary">
                 {copy.home}
               </Link>
-              <Link href="/products" className="inline-flex h-7 items-center rounded-md px-1 whitespace-nowrap shrink min-w-0 transition-all hover:bg-white/18">
+              <Link href="/products" className="inline-flex h-7 items-center rounded-md px-1 whitespace-nowrap shrink min-w-0 transition-all hover:bg-gray-100 hover:text-primary">
                 {copy.products}
               </Link>
               <Link
                 href="/gifts"
-                className="inline-flex h-7 items-center rounded-md px-1 relative flex items-center gap-1 whitespace-nowrap shrink min-w-0 transition-all hover:bg-white/18"
+                className="inline-flex h-7 items-center rounded-md px-1 relative flex items-center gap-1 whitespace-nowrap shrink min-w-0 transition-all hover:bg-gray-100 hover:text-primary"
               >
                 {copy.gifts}
                 <span
-                  className="hidden min-[360px]:inline-flex text-white text-[8px] px-1 py-0.5 rounded-full font-black uppercase tracking-tighter"
+                  className="hidden min-[360px]:inline-flex text-gray-900 text-[8px] px-1 py-0.5 rounded-full font-black uppercase tracking-tighter"
                   style={{ backgroundColor: "var(--yellow)" }}
                 >
                   {copy.new}
                 </span>
               </Link>
-              <MobileNavMenu closeAll={closeAll} isRtl={isRtl} />
+              <MobileNavMenu closeAll={closeAll} isRtl={isRtl} surface="light" />
             </div>
           </div>
         </div>
@@ -1771,11 +1037,13 @@ function LanguageSelector({
   languages,
   label,
   isRtl,
+  variant = "default",
 }: {
   locale: string;
   languages: Array<{ code: string; label: string; flag: string }>;
   label: string;
   isRtl: boolean;
+  variant?: "default" | "dark";
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -1796,7 +1064,7 @@ function LanguageSelector({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className={`h-9 px-3 rounded-full border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${open ? "bg-white shadow-lg border-primary/30 text-primary" : "bg-gray-50/80 border-gray-100 hover:bg-white text-gray-600"}`}
+        className={`h-9 px-3 rounded-full border flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${variant === "dark" ? (open ? "bg-white shadow-lg border-white text-primary" : "bg-white/10 border-white/20 text-white hover:bg-white/15") : open ? "bg-white shadow-lg border-primary/30 text-primary" : "bg-gray-50/80 border-gray-100 hover:bg-white text-gray-600"}`}
       >
         <span className="text-base w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-sm border border-gray-100">
           {current.flag}
@@ -1843,9 +1111,11 @@ function LanguageSelector({
 function MobileNavMenu({
   closeAll,
   isRtl,
+  surface = "dark",
 }: {
   closeAll: () => void;
   isRtl: boolean;
+  surface?: "dark" | "light";
 }) {
   const locale = useLocale() as SupportedLocale;
   const safeLocale: SupportedLocale =
@@ -1880,9 +1150,13 @@ function MobileNavMenu({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`shrink-0 flex items-center gap-1 px-1.5 min-[360px]:px-2 py-1 rounded-full border transition-all ${
-          isOpen
-            ? "bg-white border-white text-primary shadow-lg"
-            : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+          surface === "light"
+            ? isOpen
+              ? "bg-primary border-primary text-white shadow-md"
+              : "bg-gray-100 border-gray-200 text-gray-800 hover:bg-gray-200"
+            : isOpen
+              ? "bg-white border-white text-primary shadow-lg"
+              : "bg-white/10 border-white/20 text-white hover:bg-white/20"
         }`}
       >
         <span className="text-[10px] min-[360px]:text-[11px] sm:text-[13px] font-bold">{copy.more}</span>
@@ -1958,6 +1232,7 @@ function IconButton({
   onClick,
   active,
   accent = "secondary",
+  surface = "default",
   "aria-label": ariaLabel,
 }: {
   children: ReactNode;
@@ -1965,22 +1240,28 @@ function IconButton({
   onClick?: () => void;
   active?: boolean;
   accent?: "primary" | "secondary";
+  surface?: "default" | "dark";
   "aria-label"?: string;
 }) {
   const accentBgClass = accent === "primary" ? "bg-primary" : "bg-[var(--secondary)]";
   const accentTextClass = accent === "primary" ? "text-primary" : "text-[var(--secondary)]";
   const accentRingClass = accent === "primary" ? "ring-primary" : "ring-[var(--secondary)]";
+  const idleSurface =
+    surface === "dark"
+      ? "border-white/20 bg-white/10 text-white hover:bg-white/20 hover:border-white/35"
+      : "border-gray-100 bg-white hover:bg-gray-50 text-gray-600 hover:text-primary hover:border-primary/30";
+  const badgeRing = surface === "dark" ? "ring-zinc-950" : "ring-white";
 
   return (
     <button
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`relative h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full border transition-all duration-300 group active:scale-90 cursor-pointer ${active ? "bg-primary border-primary text-white shadow-xl shadow-primary/30" : "border-gray-100 bg-white hover:bg-gray-50 text-gray-600 hover:text-primary hover:border-primary/30"}`}
+      className={`relative h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full border transition-all duration-300 group active:scale-90 cursor-pointer ${active ? "bg-primary border-primary text-white shadow-xl shadow-primary/30" : idleSurface}`}
     >
       {children}
       {badge && (
         <span
-          className={`absolute -top-1 -right-1 text-[10px] font-black min-w-5 h-5 flex items-center justify-center rounded-full ring-2 shadow-md transition-all ${active ? `bg-white ${accentTextClass} ${accentRingClass}` : `${accentBgClass} text-white ring-white`}`}
+          className={`absolute -top-1 -right-1 text-[10px] font-black min-w-5 h-5 flex items-center justify-center rounded-full ring-2 shadow-md transition-all ${active ? `bg-white ${accentTextClass} ${accentRingClass}` : `${accentBgClass} text-white ${badgeRing}`}`}
         >
           {badge}
         </span>

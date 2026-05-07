@@ -20,14 +20,14 @@
   --color-yellow:var(--yellow);
   
   
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-sans-brand);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans-brand), system-ui, "Segoe UI", sans-serif;
 }
 
 * {

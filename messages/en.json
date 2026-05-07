@@ -2,208 +2,137 @@
   "Homepage": {
     "direction": "ltr",
     "navbar": {
-      "searchPlaceholder": "Search gifts, groceries, flowers, and more",
-      "searchButton": "Search",
-      "languageLabel": "Language",
-      "currencyLabel": "USD",
-      "accountLabel": "Account",
-      "cartLabel": "Cart",
-      "languages": [
-        { "code": "en", "label": "EN" },
-        { "code": "ps", "label": "پښتو" },
-        { "code": "fa-AF", "label": "دری" }
-      ]
+      "searchPlaceholder": "Search the store",
+      "cartLabel": "Cart"
     },
-    "hero": {
-      "eyebrow": "Premium multi-vendor gifting and shopping",
-      "title": "Send Love to Your Family Anywhere",
-      "description": "Discover premium gifts, fresh essentials, and trusted vendors in one elegant marketplace designed for meaningful delivery.",
-      "primaryCta": "Start Shopping",
-      "secondaryCta": "Become a Vendor",
-      "stats": [
-        { "value": "25k+", "label": "Happy Customers" },
-        { "value": "800+", "label": "Verified Vendors" },
-        { "value": "Same Day", "label": "Express Delivery" }
+    "store": {
+      "promo": "Free Delivery on Orders Above $100",
+      "tagline": "Delivering everyday essentials with convenience your family deserves.",
+      "shopByCategory": "Shop By Category",
+      "featuredTitle": "Popular picks for your pantry",
+      "addToCart": "Add to cart",
+      "addedToCart": "Added to your cart",
+      "addError": "Could not add — try again",
+      "unitPrice": "Unit price",
+      "per": "/ per",
+      "heroSlides": [
+        {
+          "image": "https://onlinemandawee.com/cdn/shop/files/Add_a_heading.png?v=1766240466&width=2048",
+          "headline": "Fresh food for a healthy life",
+          "sub": "",
+          "cta": "Shop now",
+          "href": "/products"
+        }
       ],
-      "floatingTopEyebrow": "Same day delight",
-      "floatingTopTitle": "Curated gifts in hours",
-      "floatingBottomEyebrow": "Trusted by families",
-      "floatingBottomTitle": "Worldwide sending made simple"
-    },
-    "categoriesSection": {
-      "eyebrow": "Discover by interest",
-      "title": "Everything your family needs, beautifully organized",
-      "description": "Browse premium categories built for gifting, groceries, celebration, and care packages."
-    },
-    "categoryCarousel": {
-      "title": "Shop By Category",
-      "swipeHint": "Swipe or tap to explore",
-      "swipeLabel": "Swipe",
-      "items": [
-        "Breakfast Items",
-        "Edible Grocery",
-        "Snack Bar",
-        "Beverages",
-        "Fruits",
-        "Vegetables",
-        "Dairy Products",
-        "Cleaning Products",
-        "Baby Care",
-        "Personal Care",
-        "Whey Proteins",
-        "Stationery Items"
+      "midPromoSlides": [
+        {
+          "ribbon": "Weekly spotlight",
+          "title": "Stock up on oils, grains & snacks",
+          "subtitle": "Fill your cart with staples your household reaches for every week.",
+          "cta": "Shop groceries",
+          "href": "/category/grocery",
+          "imageKey": "pantry",
+          "imageSrc": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=85"
+        },
+        {
+          "ribbon": "Home care",
+          "title": "Sparkling clean, room by room",
+          "subtitle": "Detergents, dish care, and fresheners — essentials for a tidy home.",
+          "cta": "View cleaning",
+          "href": "/category/cleaning-products",
+          "imageKey": "clean",
+          "imageSrc": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=85"
+        }
+      ],
+      "categoryTiles": [
+        {
+          "slug": "breakfast",
+          "href": "/category/breakfast",
+          "image": "/categories/breakfastItems.webp",
+          "label": "Breakfast Items",
+          "tint": "#fff8e7"
+        },
+        {
+          "slug": "grocery",
+          "href": "/category/grocery",
+          "image": "/categories/edibleGrocery.webp",
+          "label": "Food / Edible Grocery",
+          "tint": "#efe6d8"
+        },
+        {
+          "slug": "snacks",
+          "href": "/category/snacks",
+          "image": "/categories/snackBar.webp",
+          "label": "Snack Bar",
+          "tint": "#fffbeb"
+        },
+        {
+          "slug": "beverages",
+          "href": "/category/beverages",
+          "image": "/categories/beverages.webp",
+          "label": "Beverages",
+          "tint": "#ffe4d4"
+        },
+        {
+          "slug": "fruits",
+          "href": "/category/fruits",
+          "image": "/categories/fruits.webp",
+          "label": "Fruits",
+          "tint": "#ffedd5"
+        },
+        {
+          "slug": "vegetables",
+          "href": "/category/vegetables",
+          "image": "/categories/vegetables.webp",
+          "label": "Vegetables",
+          "tint": "#fef9c3"
+        },
+        {
+          "slug": "dairy",
+          "href": "/category/dairy",
+          "image": "/categories/dairyProducts.webp",
+          "label": "Dairy Products",
+          "tint": "#f1f5f9"
+        },
+        {
+          "slug": "cleaning-products",
+          "href": "/category/cleaning-products",
+          "image": "/categories/cleaningProducts.webp",
+          "label": "Cleaning Products",
+          "tint": "#e0f2fe"
+        },
+        {
+          "slug": "baby-care",
+          "href": "/category/baby-care",
+          "image": "/categories/babyCare.webp",
+          "label": "Baby Care",
+          "tint": "#fce7f3"
+        },
+        {
+          "slug": "personal-care",
+          "href": "/category/personal-care",
+          "image": "/categories/personalCare.webp",
+          "label": "Personal Care",
+          "tint": "#fae8ff"
+        },
+        {
+          "slug": "whey-proteins",
+          "href": "/category/whey-proteins",
+          "image": "/categories/wheyProteins.webp",
+          "label": "Whey Protein",
+          "tint": "#ecfdf5"
+        },
+        {
+          "slug": "stationery-items",
+          "href": "/category/stationery-items",
+          "image": "/categories/stationaryItems.webp",
+          "label": "Stationery Items",
+          "tint": "#f3f4f6"
+        }
       ]
     },
-    "categories": [
-      {
-        "title": "Fresh Groceries",
-        "description": "Daily essentials from trusted local stores.",
-        "iconKey": "basket"
-      },
-      {
-        "title": "Luxury Hampers",
-        "description": "Curated bundles for special family moments.",
-        "iconKey": "gift"
-      },
-      {
-        "title": "Flowers",
-        "description": "Elegant bouquets delivered with care.",
-        "iconKey": "flower"
-      },
-      {
-        "title": "Cakes & Sweets",
-        "description": "Celebrate birthdays and milestones beautifully.",
-        "iconKey": "cake"
-      },
-      {
-        "title": "Home Dining",
-        "description": "Restaurant-quality meal kits and hosting picks.",
-        "iconKey": "plate"
-      },
-      {
-        "title": "Fashion Gifts",
-        "description": "Thoughtful apparel and accessory finds.",
-        "iconKey": "sparkles"
-      },
-      {
-        "title": "Wellness",
-        "description": "Premium care packages for loved ones.",
-        "iconKey": "heartShield"
-      },
-      {
-        "title": "Tech & Gadgets",
-        "description": "Useful devices that make distance feel smaller.",
-        "iconKey": "device"
-      }
-    ],
-    "featuredSection": {
-      "eyebrow": "Editor's picks",
-      "title": "Featured products your loved ones will remember",
-      "description": "Premium, gift-ready finds from trusted marketplace vendors.",
-      "viewAll": "View All",
-      "addToCart": "Add to Cart"
-    },
-    "vendorsSection": {
-      "eyebrow": "Trusted marketplace",
-      "title": "Top vendors delivering quality with consistency",
-      "description": "Shop from carefully selected sellers with premium presentation and dependable service."
-    },
-    "topVendors": [
-      {
-        "name": "Noor Premium Gifts",
-        "specialty": "Luxury curated gifting",
-        "accent": "from-rose-100 to-white",
-        "metricLabel": "Orders fulfilled",
-        "metricValue": "12k+"
-      },
-      {
-        "name": "Bloom Avenue",
-        "specialty": "Fresh floral experiences",
-        "accent": "from-red-50 to-white",
-        "metricLabel": "Cities served",
-        "metricValue": "36"
-      },
-      {
-        "name": "Saffron Table",
-        "specialty": "Home dining and feasts",
-        "accent": "from-orange-50 to-white",
-        "metricLabel": "Avg prep time",
-        "metricValue": "45 min"
-      },
-      {
-        "name": "Cocoa Stories",
-        "specialty": "Desserts and sweet gifting",
-        "accent": "from-neutral-100 to-white",
-        "metricLabel": "Gift wraps",
-        "metricValue": "5 styles"
-      }
-    ],
-    "deliverySection": {
-      "eyebrow": "Flexible fulfillment",
-      "title": "Choose delivery your way",
-      "description": "Designed to match urgent gifts, planned orders, and convenient local pickup."
-    },
-    "deliveryOptions": [
-      {
-        "title": "Express",
-        "eyebrow": "Fastest arrival",
-        "description": "Priority delivery for same-day surprises and urgent gifting.",
-        "iconKey": "rocket"
-      },
-      {
-        "title": "Standard",
-        "eyebrow": "Best value",
-        "description": "Balanced delivery pricing for everyday family sending.",
-        "iconKey": "deliveryTruck"
-      },
-      {
-        "title": "Pickup",
-        "eyebrow": "Free option",
-        "description": "Order ahead and collect from your preferred vendor location.",
-        "iconKey": "storefront"
-      }
-    ],
-    "giftingBanner": {
-      "eyebrow": "Thoughtful gifting",
-      "title": "Create Custom Gifts for Your Loved Ones",
-      "description": "Personalize memorable bundles, add heartfelt notes, and let trusted vendors prepare every detail with care.",
-      "primaryCta": "Start Customizing",
-      "secondaryCta": "Explore Gift Ideas",
-      "addOnsTitle": "Popular add-ons",
-      "addOnsDescription": "Flowers, handwritten cards, premium wrapping",
-      "collaborationTitle": "Vendor collaboration",
-      "collaborationDescription": "Build one seamless gift from multiple stores"
-    },
-    "trustSection": {
-      "eyebrow": "Why customers trust us",
-      "title": "A marketplace built around quality and peace of mind",
-      "description": "Every interaction is designed to feel premium, reliable, and effortless."
-    },
-    "trustItems": [
-      {
-        "title": "Secure Payments",
-        "description": "Protected checkout experience for every order.",
-        "iconKey": "lock"
-      },
-      {
-        "title": "Verified Vendors",
-        "description": "Carefully reviewed sellers with trusted quality standards.",
-        "iconKey": "checkBadge"
-      },
-      {
-        "title": "Fast Delivery",
-        "description": "Flexible options for urgent and scheduled delivery needs.",
-        "iconKey": "flash"
-      },
-      {
-        "title": "Easy Refunds",
-        "description": "Clear refund and resolution flow when something goes wrong.",
-        "iconKey": "refresh"
-      }
-    ],
     "footer": {
-      "tagline": "Premium multi-vendor marketplace",
-      "description": "Send meaningful gifts, premium essentials, and curated surprises to your loved ones anywhere with confidence.",
+      "description": "Marketplace.",
       "columns": [
         {
           "title": "Company",
@@ -222,151 +151,7 @@
           "links": ["Instagram", "Facebook", "TikTok", "LinkedIn"]
         }
       ],
-      "copyright": "© 2026 Mandawee. Crafted for meaningful connections."
-    }
-  },
-  "HomeV2": {
-    "categories": {
-      "title": "Shop By Category",
-      "subtitle": "Browse our wide selection of products",
-      "shop": "Shop",
-      "exploreAll": "Explore All Categories"
-    },
-    "products": {
-      "title": "All Products",
-      "results": "results",
-      "sort": {
-        "featured": "Sort by: Featured",
-        "lowToHigh": "Price: Low to High",
-        "highToLow": "Price: High to Low",
-        "highestRated": "Highest Rated"
-      }
-    },
-    "sections": {
-      "topDeals": "Top Deals",
-      "bestSelling": "Best Selling",
-      "freshPicks": "Fresh Picks",
-      "trending": "Top Trending Products",
-      "trendingBadge": "TRENDING",
-      "viewAll": "View all"
-    },
-    "promo": {
-      "title": "Weekend Special Offer!",
-      "description": "Get up to 30% off on selected categories. Limited time only!",
-      "cta": "Shop Now",
-      "offBadge": "30% OFF"
-    },
-    "why": {
-      "title": "Why shoppers choose Mandawee",
-      "items": [
-        { "title": "Fast Delivery", "desc": "Same-day delivery on selected items" },
-        { "title": "Verified Vendors", "desc": "Trusted stores with quality standards" },
-        { "title": "Daily Deals", "desc": "Fresh promotions and limited-time offers" },
-        { "title": "Easy Checkout", "desc": "Quick cart and secure payments" }
-      ]
-    },
-    "heroSlides": [
-      { "alt": "Fresh Groceries", "title": "Fresh Groceries Delivered", "subtitle": "Get 20% off on all fresh produce", "cta": "Shop Now", "discount": "20% OFF" },
-      { "alt": "Baby Care", "title": "Baby Care Essentials", "subtitle": "Everything your little one needs", "cta": "Explore", "discount": "15% OFF" },
-      { "alt": "Special Offers", "title": "Weekly Special Offers", "subtitle": "Save big on your favorite items", "cta": "View Deals", "discount": "UP TO 50% OFF" }
-    ],
-    "categoryItems": [
-      "Breakfast Items",
-      "Edible Grocery",
-      "Snack Bar",
-      "Beverages",
-      "Fruits",
-      "Vegetables",
-      "Dairy",
-      "Baby Care"
-    ],
-    "filters": {
-      "title": "Filters",
-      "clearAll": "Clear all",
-      "categoryTitle": "Categories",
-      "priceRange": "Price Range",
-      "min": "Min",
-      "max": "Max",
-      "availability": "Availability",
-      "inStock": "In Stock",
-      "onSale": "On Sale",
-      "apply": "Apply Filters",
-      "categories": [
-        "Fruits",
-        "Vegetables",
-        "Dairy",
-        "Snacks",
-        "Beverages",
-        "Baby Care",
-        "Personal Care",
-        "Fitness"
-      ]
-    },
-    "productCard": {
-      "inStock": "In Stock",
-      "quickView": "Quick View",
-      "toggleWishlist": "Toggle wishlist"
-    }
-  },
-  "HomeV3": {
-    "slides": [
-      {
-        "title": "Fresh Groceries Delivered Daily",
-        "sub": "Quality products from trusted local vendors",
-        "cta": "Shop Now",
-        "discount": "UP TO 40% OFF"
-      },
-      {
-        "title": "Organic & Natural Products",
-        "sub": "Healthy choices for your family",
-        "cta": "Explore",
-        "discount": "SPECIAL OFFERS"
-      },
-      {
-        "title": "Fast Delivery to Your Door",
-        "sub": "Order today, receive tomorrow",
-        "cta": "Order Now",
-        "discount": "FREE SHIPPING"
-      }
-    ],
-    "topCategories": ["Breakfast", "Grocery", "Snacks", "Beverages", "Fruits", "Vegetables", "Dairy", "Baby Care"],
-    "trust": ["Organic produce", "Fast delivery", "Secure payment", "Best savings"],
-    "featured": {
-      "title": "Featured Grocery",
-      "subtitle": "Handpicked quality items for you"
-    },
-    "banners": [
-      { "eyebrow": "Fresh Fruits Special", "title": "Up to 40% OFF", "subtitle": "Seasonal favorites" },
-      { "eyebrow": "Organic Vegetables", "title": "Fresh Daily", "subtitle": "Farm to table" }
-    ],
-    "weekly": {
-      "title": "Weekly Best Selling Groceries",
-      "subtitle": "Most popular products this week",
-      "hot": "HOT"
-    },
-    "trending": {
-      "title": "Top Trending Products",
-      "offBadge": "25% Off",
-      "packLabel": "500g Pack"
-    },
-    "blog": {
-      "title": "Latest Blog Post Insights",
-      "postTitle": "Fusion Fixation: Fueling Your Passion for All Things Stylish",
-      "category": "Modern Fashion",
-      "readDetails": "Read Details"
-    },
-    "why": {
-      "title": "Why shoppers choose Mandawee",
-      "items": [
-        { "title": "Fast Delivery", "desc": "Same-day delivery on selected items" },
-        { "title": "Verified Vendors", "desc": "Trusted stores with quality standards" },
-        { "title": "Daily Deals", "desc": "Fresh promotions and limited-time offers" },
-        { "title": "Easy Checkout", "desc": "Quick cart and secure payments" }
-      ]
-    },
-    "productCard": {
-      "freshQuality": "Fresh Quality",
-      "add": "Add"
+      "copyright": "© 2026 Mandawee"
     }
   }
 }
