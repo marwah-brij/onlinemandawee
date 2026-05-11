@@ -21,7 +21,7 @@ export function HomeCategoryCarousel() {
         <button
           type="button"
           onClick={() => scroll(-1)}
-          className="absolute left-0 top-[72px] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-md transition hover:bg-slate-50 active:scale-95 sm:top-[80px]"
+          className="pointer-events-auto absolute left-1 top-[72px] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-700 shadow-md backdrop-blur-sm transition hover:bg-slate-50 active:scale-95 sm:left-2 sm:top-[80px]"
           aria-label="prev"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -29,14 +29,14 @@ export function HomeCategoryCarousel() {
         <button
           type="button"
           onClick={() => scroll(1)}
-          className="absolute right-0 top-[72px] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-md transition hover:bg-slate-50 active:scale-95 sm:top-[80px]"
+          className="pointer-events-auto absolute right-1 top-[72px] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-700 shadow-md backdrop-blur-sm transition hover:bg-slate-50 active:scale-95 sm:right-2 sm:top-[80px]"
           aria-label="next"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
         <div
           ref={ref}
-          className="flex gap-4 overflow-x-auto scroll-smooth pb-2 px-11 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-5 sm:px-12 md:px-14 [&::-webkit-scrollbar]:hidden"
+          className="flex gap-4 overflow-x-auto scroll-smooth pb-2 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-5 [&::-webkit-scrollbar]:hidden"
         >
           {tiles.map((item) => (
             <Link

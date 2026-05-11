@@ -47,7 +47,7 @@ function ProductCard({ p, locale }: { p: Row; locale: LocaleKey }) {
             alt={p.name[locale]}
             fill
             className="object-cover object-center"
-            sizes="(max-width: 640px) 45vw, 210px"
+            sizes="(max-width: 767px) 45vw, 23vw"
           />
         </div>
         <div className="mt-3 flex min-h-0 flex-1 flex-col">
@@ -89,7 +89,7 @@ export function HomeProductRail({ productIds, showTitle = true }: Props) {
   const scrollByPage = useCallback((dir: -1 | 1) => {
     const el = scrollRef.current;
     if (!el) return;
-    const w = el.getBoundingClientRect().width;
+    const w = el.clientWidth;
     el.scrollBy({ left: dir * Math.max(1, Math.round(w)), behavior: "smooth" });
   }, []);
 
@@ -105,7 +105,7 @@ export function HomeProductRail({ productIds, showTitle = true }: Props) {
         <button
           type="button"
           onClick={() => scrollByPage(-1)}
-          className="absolute left-0 top-[92px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:scale-95 sm:top-[100px] md:h-10 md:w-10 md:top-[108px]"
+          className="pointer-events-auto absolute left-1 top-[92px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 shadow-sm backdrop-blur-sm transition hover:bg-neutral-50 active:scale-95 sm:left-2 sm:top-[100px] md:left-3 md:h-10 md:w-10 md:top-[108px]"
           aria-label="prev"
         >
           <ChevronLeft className="h-4 w-4 stroke-[1.6] md:h-[18px] md:w-[18px]" />
@@ -113,7 +113,7 @@ export function HomeProductRail({ productIds, showTitle = true }: Props) {
         <button
           type="button"
           onClick={() => scrollByPage(1)}
-          className="absolute right-0 top-[92px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:scale-95 sm:top-[100px] md:h-10 md:w-10 md:top-[108px]"
+          className="pointer-events-auto absolute right-1 top-[92px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 shadow-sm backdrop-blur-sm transition hover:bg-neutral-50 active:scale-95 sm:right-2 sm:top-[100px] md:right-3 md:h-10 md:w-10 md:top-[108px]"
           aria-label="next"
         >
           <ChevronRight className="h-4 w-4 stroke-[1.6] md:h-[18px] md:w-[18px]" />
@@ -122,14 +122,14 @@ export function HomeProductRail({ productIds, showTitle = true }: Props) {
         <div
           ref={scrollRef}
           dir="ltr"
-          className="flex w-full min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth px-10 py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-x sm:px-11 md:px-12 [&::-webkit-scrollbar]:hidden"
+          className="flex w-full min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth touch-pan-x [&::-webkit-scrollbar]:hidden"
         >
           {rows.map((p) => (
             <div
               key={p.id}
-              className="box-border min-w-0 max-w-[210px] shrink-0 snap-start basis-[calc((100%-0.75rem)/2)]"
+              className="box-border min-w-0 shrink-0 snap-start basis-[calc((100%-0.75rem)/2)] md:basis-[calc((100%-2.25rem)/4)]"
             >
-              <div className="h-full px-[5px] sm:px-2 md:px-[15px]">
+              <div className="h-full px-1 sm:px-2 md:px-[15px]">
                 <ProductCard p={p} locale={locale} />
               </div>
             </div>
