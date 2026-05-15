@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale } from "next-intl";
@@ -18,88 +18,49 @@ import {
   Filter,
 } from "lucide-react";
 import productData from "@/data/product.json";
+import {
+  localizeDelivery,
+  localizeVendor,
+  type SupportedLocale,
+} from "@/lib/localization/product-vendor";
+import {
+  filterCatalogProducts,
+  sortCatalogProducts,
+} from "@/lib/products/catalog-filters";
 import { useCart } from "@/store/cart-context";
 
 // Import data from JSON file
 const allProducts = productData.featuredProducts;
 const categories = productData.categories;
 const vendors = productData.vendors;
-
-const vendorTranslations = {
-  "Noor Premium Gifts": { ps: "نور پریمیم ډالۍ", "fa-AF": "نور پریمیم هدایا" },
-  "Bloom Avenue": { ps: "بلوم ایونیو", "fa-AF": "بلوم اونیو" },
-  "Mandawee Market": { ps: "منډوي مارکیټ", "fa-AF": "بازار منداوی" },
-  "Cocoa Stories": { ps: "کوکو کیسې", "fa-AF": "داستان‌های کاکائو" },
-  "Fresh Farm Co": { ps: "فریش فارم شرکت", "fa-AF": "شرکت فارم تازه" },
-  "Desert Delights": { ps: "صحرايي خوندونه", "fa-AF": "خوشی‌های صحرا" },
-  "Tiny Tots Store": { ps: "ټایني ټاټس پلورنځی", "fa-AF": "فروشگاه تینی ټاتس" },
-} as const;
-
-const localizeVendor = (vendor: string, locale: "en" | "ps" | "fa-AF") => {
-  if (locale === "en") return vendor;
-  return vendorTranslations[vendor as keyof typeof vendorTranslations]?.[locale] ?? vendor;
-};
-
-const deliveryTranslations = {
-  "Same Day": {
-    ps: "همدا ورځ",
-    "fa-AF": "همان روز",
-  },
-  "Next Day": {
-    ps: "بله ورځ",
-    "fa-AF": "روز بعد",
-  },
-  "2-3 Days": {
-    ps: "2-3 ورځې",
-    "fa-AF": "2-3 روز",
-  },
-} as const;
-
-const localizeDelivery = (delivery: string, locale: "en" | "ps" | "fa-AF") => {
-  if (locale === "en") return delivery;
-  return (
-    deliveryTranslations[delivery as keyof typeof deliveryTranslations]?.[locale] ??
-    delivery
-  );
-};
+type ProductSortBy = "featured" | "price-low" | "price-high" | "rating";
 
 export default function ProductsPage() {
-  const locale = useLocale() as "en" | "ps" | "fa-AF";
+  const locale = useLocale() as SupportedLocale;
   const isRtl = locale !== "en";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedVendor, setSelectedVendor] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState<ProductSortBy>("featured");
 
-  // Filter products
-  const filteredProducts = allProducts.filter((product) => {
-    const matchesSearch = product.name[locale]
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" || product.category === selectedCategory;
-    const matchesVendor =
-      selectedVendor.length === 0 || selectedVendor.includes(product.vendor);
-    const matchesPrice =
-      product.price >= priceRange[0] && product.price <= priceRange[1];
-    return matchesSearch && matchesCategory && matchesVendor && matchesPrice;
-  });
+  const filteredProducts = useMemo(
+    () =>
+      filterCatalogProducts(allProducts, {
+        searchQuery,
+        selectedCategory,
+        selectedVendor,
+        priceRange,
+        locale,
+      }),
+    [searchQuery, selectedCategory, selectedVendor, priceRange, locale]
+  );
 
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return b.rating - a.rating;
-      default:
-        return 0;
-    }
-  });
+  const sortedProducts = useMemo(
+    () => sortCatalogProducts(filteredProducts, sortBy),
+    [filteredProducts, sortBy]
+  );
 
   const toggleVendor = (vendor: string) => {
     setSelectedVendor((prev) =>
@@ -238,7 +199,7 @@ export default function ProductsPage() {
             <div className="relative w-full sm:w-auto">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => setSortBy(e.target.value as ProductSortBy)}
                 className="w-full sm:w-auto appearance-none pl-4 pr-10 py-2.5 rounded-full border-2 border-gray-200 focus:border-primary focus:outline-none bg-white cursor-pointer font-medium text-gray-700 text-sm"
               >
                 <option value="featured">

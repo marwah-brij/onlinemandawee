@@ -21,10 +21,17 @@ const envSchema = z.object({
   COMMISSION_RATE_BPS: z.coerce.number().int().min(1).max(10000).default(399),
   PAYOUT_HOLD_DAYS: z.coerce.number().int().min(0).max(30).default(5),
   STRIPE_WEBHOOK_SECRET: z.string().min(16),
-  PAYPAL_WEBHOOK_SECRET: z.string().min(16),
   MEMBERSHIP_FEE_AMOUNT: z.coerce.number().int().min(0).default(599),
   MEMBERSHIP_TRIAL_DAYS: z.coerce.number().int().min(0).max(365).default(90),
   MEMBERSHIP_INVOICE_CURRENCY: z.string().trim().length(3).default("USD"),
+  SMTP_HOST: z.string().trim().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().trim().min(1).optional(),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().trim().min(1).optional(),
+  CLOUDINARY_API_KEY: z.string().trim().min(1).optional(),
+  CLOUDINARY_API_SECRET: z.string().trim().min(1).optional(),
 });
 
 const parsedEnv = envSchema.safeParse({
@@ -44,10 +51,17 @@ const parsedEnv = envSchema.safeParse({
   COMMISSION_RATE_BPS: process.env.COMMISSION_RATE_BPS,
   PAYOUT_HOLD_DAYS: process.env.PAYOUT_HOLD_DAYS,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-  PAYPAL_WEBHOOK_SECRET: process.env.PAYPAL_WEBHOOK_SECRET,
   MEMBERSHIP_FEE_AMOUNT: process.env.MEMBERSHIP_FEE_AMOUNT,
   MEMBERSHIP_TRIAL_DAYS: process.env.MEMBERSHIP_TRIAL_DAYS,
   MEMBERSHIP_INVOICE_CURRENCY: process.env.MEMBERSHIP_INVOICE_CURRENCY,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  SMTP_FROM: process.env.SMTP_FROM,
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 });
 
 if (!parsedEnv.success) {

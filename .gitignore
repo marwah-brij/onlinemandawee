@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local-only (not committed)
+BACKEND_PLAN.md
+scripts/seed-admin.ts

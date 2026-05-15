@@ -8,7 +8,6 @@ export class VendorPayoutMethodRepository {
     accountName?: string;
     accountNumberOrIban?: string;
     bankName?: string;
-    paypalEmail?: string;
     stripeEmail?: string;
   }) {
     return prisma.vendorPayoutMethod.upsert({
@@ -20,7 +19,6 @@ export class VendorPayoutMethodRepository {
         accountName: input.accountName ?? null,
         accountNumberOrIban: input.accountNumberOrIban ?? null,
         bankName: input.bankName ?? null,
-        paypalEmail: input.paypalEmail ?? null,
         stripeEmail: input.stripeEmail ?? null,
       },
       create: {
@@ -29,7 +27,6 @@ export class VendorPayoutMethodRepository {
         accountName: input.accountName ?? null,
         accountNumberOrIban: input.accountNumberOrIban ?? null,
         bankName: input.bankName ?? null,
-        paypalEmail: input.paypalEmail ?? null,
         stripeEmail: input.stripeEmail ?? null,
       },
     });

@@ -2,6 +2,7 @@ import { verifyOtpProofToken } from "@/lib/auth/otp-proof";
 import { hashPassword } from "@/lib/auth/password";
 import { AppError } from "@/lib/errors/app-error";
 import { ERROR_CODE } from "@/lib/errors/error-codes";
+import { normalizeEmailForAuth } from "@/lib/utils/normalize-email";
 import { slugify } from "@/lib/utils/slug";
 import { AuditLogRepository } from "@/repositories/audit-log.repository";
 import { UserRepository } from "@/repositories/user.repository";
@@ -11,55 +12,24 @@ import { VendorKycDocumentRepository } from "@/repositories/vendor-kyc-document.
 import { VendorPayoutMethodRepository } from "@/repositories/vendor-payout-method.repository";
 import { VendorProfileRepository } from "@/repositories/vendor-profile.repository";
 import { AuthService, type RequestMetadata } from "@/services/auth.service";
+import {
+  startVendorOnboardingSchema,
+  vendorAddressSchema,
+  vendorAgreementsSchema,
+  vendorKycSchema,
+  vendorPayoutSchema,
+  vendorStoreInformationSchema,
+} from "@/validators/vendor.validator";
 
 import type { AuthenticatedUser } from "@/domain/auth/authenticated-user";
-import type { BusinessType, KycDocumentType, PayoutMethodType } from "@/domain/vendor/vendor-types";
+import type { z } from "zod";
 
-type StartVendorOnboardingInput = {
-  fullName: string;
-  email: string;
-  phone: string;
-  password: string;
-  verificationToken: string;
-};
-
-type StoreInformationInput = {
-  storeName: string;
-  businessType: BusinessType;
-  logoUrl?: string;
-  description?: string;
-};
-
-type KycInput = {
-  documentType: KycDocumentType;
-  documentUrl: string;
-  selfieWithIdUrl?: string;
-};
-
-type AddressInput = {
-  addressLine1: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  proofOfAddressUrl?: string;
-};
-
-type PayoutInput = {
-  method: PayoutMethodType;
-  accountName?: string;
-  accountNumberOrIban?: string;
-  bankName?: string;
-  paypalEmail?: string;
-  stripeEmail?: string;
-};
-
-type AgreementInput = {
-  agreedToVendorTerms: true;
-  agreedToMembershipPolicy: true;
-  agreedToCommissionPolicy: true;
-  agreedToDisputePolicy: true;
-  agreedToDeliveryRules: true;
-};
+type StartVendorOnboardingInput = z.infer<typeof startVendorOnboardingSchema>;
+type StoreInformationInput = z.infer<typeof vendorStoreInformationSchema>;
+type KycInput = z.infer<typeof vendorKycSchema>;
+type AddressInput = z.infer<typeof vendorAddressSchema>;
+type PayoutInput = z.infer<typeof vendorPayoutSchema>;
+type AgreementInput = z.infer<typeof vendorAgreementsSchema>;
 
 export class VendorOnboardingService {
   constructor(
@@ -76,10 +46,13 @@ export class VendorOnboardingService {
   async start(input: StartVendorOnboardingInput, metadata: RequestMetadata) {
     const proof = await verifyOtpProofToken(input.verificationToken);
 
-    if (proof.purpose !== "VENDOR_SIGNUP" || proof.sub !== input.phone) {
+    if (
+      proof.purpose !== "VENDOR_SIGNUP" ||
+      proof.sub !== normalizeEmailForAuth(input.email)
+    ) {
       throw new AppError({
         code: ERROR_CODE.UNAUTHORIZED,
-        message: "Phone verification is invalid for vendor onboarding",
+        message: "Email verification is invalid for vendor onboarding",
         statusCode: 401,
       });
     }
@@ -227,7 +200,6 @@ export class VendorOnboardingService {
       accountName: input.accountName,
       accountNumberOrIban: input.accountNumberOrIban,
       bankName: input.bankName,
-      paypalEmail: input.paypalEmail,
       stripeEmail: input.stripeEmail,
     });
 
@@ -349,6 +321,7 @@ export class VendorOnboardingService {
 
   async getStatus(auth: AuthenticatedUser) {
     const vendorProfile = await this.getVendorProfileByUserId(auth.id);
+    const kycDoc = vendorProfile.kycDocuments[0];
 
     return {
       id: vendorProfile.id,
@@ -376,6 +349,46 @@ export class VendorOnboardingService {
         hasAddress: Boolean(vendorProfile.address),
         hasPayoutMethod: Boolean(vendorProfile.payoutMethod),
         hasAgreements: Boolean(vendorProfile.agreementAcceptance),
+      },
+      draft: {
+        storeName: vendorProfile.storeName ?? "",
+        businessType: vendorProfile.businessType,
+        logoUrl: vendorProfile.logoUrl ?? "",
+        description: vendorProfile.description ?? "",
+        kyc: kycDoc
+          ? {
+              documentType: kycDoc.documentType,
+              documentUrl: kycDoc.documentUrl,
+              selfieWithIdUrl: kycDoc.selfieWithIdUrl ?? "",
+            }
+          : null,
+        address: vendorProfile.address
+          ? {
+              addressLine1: vendorProfile.address.addressLine1,
+              city: vendorProfile.address.city,
+              country: vendorProfile.address.country,
+              postalCode: vendorProfile.address.postalCode,
+              proofOfAddressUrl: vendorProfile.address.proofOfAddressUrl ?? "",
+            }
+          : null,
+        payout: vendorProfile.payoutMethod
+          ? {
+              method: vendorProfile.payoutMethod.method,
+              accountName: vendorProfile.payoutMethod.accountName ?? "",
+              accountNumberOrIban: vendorProfile.payoutMethod.accountNumberOrIban ?? "",
+              bankName: vendorProfile.payoutMethod.bankName ?? "",
+              stripeEmail: vendorProfile.payoutMethod.stripeEmail ?? "",
+            }
+          : null,
+        agreements: vendorProfile.agreementAcceptance
+          ? {
+              agreedToVendorTerms: vendorProfile.agreementAcceptance.agreedToVendorTerms,
+              agreedToMembershipPolicy: vendorProfile.agreementAcceptance.agreedToMembershipPolicy,
+              agreedToCommissionPolicy: vendorProfile.agreementAcceptance.agreedToCommissionPolicy,
+              agreedToDisputePolicy: vendorProfile.agreementAcceptance.agreedToDisputePolicy,
+              agreedToDeliveryRules: vendorProfile.agreementAcceptance.agreedToDeliveryRules,
+            }
+          : null,
       },
     };
   }

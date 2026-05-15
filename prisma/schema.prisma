@@ -75,7 +75,6 @@ enum ReviewStatus {
 
 enum PayoutMethodType {
   BANK
-  PAYPAL
   STRIPE
 }
 
@@ -115,7 +114,6 @@ enum VendorOrderStatus {
 
 enum PaymentProvider {
   STRIPE
-  PAYPAL
 }
 
 enum PaymentTransactionStatus {
@@ -223,7 +221,8 @@ model Session {
 
 model OtpCode {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  phone      String
+  phone      String?
+  email      String?
   purpose    OtpPurpose
   codeHash   String
   attempts   Int        @default(0)
@@ -233,6 +232,7 @@ model OtpCode {
   updatedAt  DateTime   @updatedAt
 
   @@index([phone, purpose])
+  @@index([email, purpose])
   @@index([expiresAt])
 }
 
@@ -342,7 +342,6 @@ model VendorPayoutMethod {
   accountName           String?
   accountNumberOrIban   String?
   bankName              String?
-  paypalEmail           String?
   stripeEmail           String?
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt

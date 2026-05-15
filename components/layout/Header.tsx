@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useRouter, Link as LocaleLink } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/store/auth-context";
 import { useCart } from "@/store/cart-context";
@@ -15,7 +15,6 @@ import {
   Menu,
   X,
   Cookie,
-  HelpCircle,
   Sparkles,
   Zap,
   ArrowRight,
@@ -33,6 +32,20 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import productData from "@/data/product.json";
+import {
+  HEADER_BAR_CLASS,
+  HEADER_LOGO_SRC,
+  PROMO_DISMISS_KEY,
+  TOP_PROMO_BAR_CLASS,
+  headerCopy,
+} from "@/components/layout/header/header-copy";
+import { IconButton } from "@/components/layout/header/IconButton";
+import { LanguageSelector } from "@/components/layout/header/LanguageSelector";
+import { MobileNavMenu } from "@/components/layout/header/MobileNavMenu";
+import {
+  localizeVendor,
+  type SupportedLocale,
+} from "@/lib/localization/product-vendor";
 
 // --- Framer Motion Configuration ---
 const dropdownVariants: Variants = {
@@ -58,23 +71,6 @@ const sheetVariants: Variants = {
   },
 };
 
-type SupportedLocale = "en" | "ps" | "fa-AF";
-
-const vendorTranslations = {
-  "Noor Premium Gifts": { ps: "نور پریمیم ډالۍ", "fa-AF": "نور پریمیم هدایا" },
-  "Bloom Avenue": { ps: "بلوم ایونیو", "fa-AF": "بلوم اونیو" },
-  "Mandawee Market": { ps: "منډوي مارکیټ", "fa-AF": "بازار منداوی" },
-  "Cocoa Stories": { ps: "کوکو کیسې", "fa-AF": "داستان‌های کاکائو" },
-  "Fresh Farm Co": { ps: "فریش فارم شرکت", "fa-AF": "شرکت فارم تازه" },
-  "Desert Delights": { ps: "صحرايي خوندونه", "fa-AF": "خوشی‌های صحرا" },
-  "Tiny Tots Store": { ps: "ټایني ټاټس پلورنځی", "fa-AF": "فروشگاه تینی ټاتس" },
-} as const;
-
-const localizeVendor = (vendor: string, locale: SupportedLocale) => {
-  if (locale === "en") return vendor;
-  return vendorTranslations[vendor as keyof typeof vendorTranslations]?.[locale] ?? vendor;
-};
-
 const localizeProductName = (
   productId: string,
   fallbackName: string,
@@ -88,166 +84,6 @@ const localizeProductName = (
   return product.name.en;
 };
 
-const headerCopy: Record<
-  SupportedLocale,
-  {
-    searchSuggestions: string[];
-    searchButton: string;
-    mobileSearchPlaceholder: string;
-    exploreCategories: string;
-    storeDepartments: string;
-    discoverEverything: string;
-    home: string;
-    products: string;
-    giftSets: string;
-    gifts: string;
-    new: string;
-    babyCare: string;
-    dailyDeals: string;
-    support: string;
-    more: string;
-    quickLinks: string;
-    hot: string;
-    yourBasket: string;
-    itemsReady: string;
-    startShopping: string;
-    basketEmpty: string;
-    basketEmptyDesc: string;
-    browseProducts: string;
-    estimatedTotal: string;
-    viewFullBasket: string;
-    languageSelect: string;
-    login: string;
-    becomeVendor: string;
-    freeDeliveryAbove100: string;
-  }
-> = {
-  en: {
-    searchSuggestions: [
-      "Search for fresh fruits...",
-      "Find organic vegetables...",
-      "Discover artisan bread...",
-      "Shop local dairy products...",
-      "Browse premium coffee...",
-    ],
-    searchButton: "Search",
-    mobileSearchPlaceholder: "Search...",
-    exploreCategories: "Explore Categories",
-    storeDepartments: "Store Departments",
-    discoverEverything: "Discover Everything",
-    home: "Home",
-    products: "Products",
-    giftSets: "Gift Sets",
-    gifts: "Gifts",
-    new: "New",
-    babyCare: "Baby Care",
-    dailyDeals: "Daily Deals",
-    support: "Support",
-    more: "More",
-    quickLinks: "Quick Links",
-    hot: "Hot",
-    yourBasket: "Your Basket",
-    itemsReady: "items ready",
-    startShopping: "Start shopping",
-    basketEmpty: "Your basket is empty",
-    basketEmptyDesc:
-      "Treat your family to something special! Browse our marketplace for the freshest items.",
-    browseProducts: "Browse Products",
-    estimatedTotal: "Estimated Total",
-    viewFullBasket: "View Full Basket",
-    languageSelect: "Language Select",
-    login: "Login",
-    becomeVendor: "Become a Vendor",
-    freeDeliveryAbove100: "Free Delivery on Orders Above $100",
-  },
-  ps: {
-    searchSuggestions: [
-      "تازه مېوې ولټوئ...",
-      "عضوي سبزيجات ومومئ...",
-      "لاسي ډوډۍ وګورئ...",
-      "محلي لبنیات واخلئ...",
-      "پریمیم قهوه ولټوئ...",
-    ],
-    searchButton: "لټون",
-    mobileSearchPlaceholder: "لټون...",
-    exploreCategories: "کټګورۍ وپلټئ",
-    storeDepartments: "د پلورنځي څانګې",
-    discoverEverything: "هر څه ومومئ",
-    home: "کور",
-    products: "محصولات",
-    giftSets: "د ډالۍ بستې",
-    gifts: "ډالۍ",
-    new: "نوی",
-    babyCare: "د ماشوم پاملرنه",
-    dailyDeals: "ورځني وړاندیزونه",
-    support: "مرسته",
-    more: "نور",
-    quickLinks: "چټک لینکونه",
-    hot: "ګرم",
-    yourBasket: "ستاسو باسکټ",
-    itemsReady: "توکي چمتو",
-    startShopping: "پیرود پیل کړئ",
-    basketEmpty: "ستاسو باسکټ خالي دی",
-    basketEmptyDesc:
-      "خپلې کورنۍ ته یو ځانګړی څه واخلئ! زموږ مارکیټ وپلټئ او تازه توکي ومومئ.",
-    browseProducts: "محصولات وګورئ",
-    estimatedTotal: "اټکلی ټولټال",
-    viewFullBasket: "بشپړ باسکټ وګورئ",
-    languageSelect: "ژبه وټاکئ",
-    login: "ننوتل",
-    becomeVendor: "پلورونکی شئ",
-    freeDeliveryAbove100: "د $100 څخه پورته فرمایشونو لپاره وړیا تحویل",
-  },
-  "fa-AF": {
-    searchSuggestions: [
-      "جستجوی میوه تازه...",
-      "سبزیجات ارگانیک پیدا کنید...",
-      "نان دست‌ساز را ببینید...",
-      "لبنیات محلی خرید کنید...",
-      "قهوه ممتاز جستجو کنید...",
-    ],
-    searchButton: "جستجو",
-    mobileSearchPlaceholder: "جستجو...",
-    exploreCategories: "کاوش دسته‌بندی‌ها",
-    storeDepartments: "بخش‌های فروشگاه",
-    discoverEverything: "همه چیز را ببینید",
-    home: "خانه",
-    products: "محصولات",
-    giftSets: "بسته‌های هدیه",
-    gifts: "هدایا",
-    new: "جدید",
-    babyCare: "مراقبت نوزاد",
-    dailyDeals: "پیشنهادهای روزانه",
-    support: "پشتیبانی",
-    more: "بیشتر",
-    quickLinks: "لینک‌های سریع",
-    hot: "داغ",
-    yourBasket: "سبد شما",
-    itemsReady: "آیتم آماده",
-    startShopping: "خرید را شروع کنید",
-    basketEmpty: "سبد شما خالی است",
-    basketEmptyDesc:
-      "برای خانواده‌تان چیزی ویژه بگیرید! بازار ما را ببینید و تازه‌ترین اقلام را پیدا کنید.",
-    browseProducts: "مشاهده محصولات",
-    estimatedTotal: "جمع تخمینی",
-    viewFullBasket: "مشاهده سبد کامل",
-    languageSelect: "انتخاب زبان",
-    login: "ورود",
-    becomeVendor: "فروشنده شوید",
-    freeDeliveryAbove100: "تحویل رایگان برای سفارش‌های بالاتر از $100",
-  },
-};
-
-const PROMO_DISMISS_KEY = "mw-free-delivery-dismiss";
-
-const HEADER_LOGO_SRC =
-  "https://onlinemandawee.com/cdn/shop/files/ON_4_150x.png?v=1763220040";
-
-/** Same as announcement bar – logo row background (not black, not white) */
-const HEADER_BAR_CLASS = "bg-[#0f3460]";
-
-/** Promo message row (dismissible) – matches logo strip */
-const TOP_PROMO_BAR_CLASS = "bg-[#0f3460]";
 
 export default function Header() {
   const t = useTranslations("Homepage.navbar");
@@ -475,12 +311,12 @@ export default function Header() {
               )}
 
               {/* Become a Vendor Button - Fourth */}
-              <Link
+              <LocaleLink
                 href="/vendor/register"
                 className="hidden md:flex h-9 shrink-0 px-3 whitespace-nowrap lg:px-4 rounded-full text-white text-xs lg:text-sm font-semibold items-center justify-center transition-all shadow-sm bg-primary hover:brightness-110"
               >
                 {copy.becomeVendor}
-              </Link>
+              </LocaleLink>
             </div>
           </div>
 
@@ -1014,263 +850,4 @@ function CategoryItem({
   );
 }
 
-function LanguageSelector({
-  locale,
-  languages,
-  label,
-  isRtl,
-  variant = "default",
-}: {
-  locale: string;
-  languages: Array<{ code: string; label: string; flag: string }>;
-  label: string;
-  isRtl: boolean;
-  variant?: "default" | "dark";
-}) {
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
-  const ref = useRef<HTMLDivElement>(null);
-  const current = languages.find((l) => l.code === locale) || languages[0];
-
-  useEffect(() => {
-    function click(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        setOpen(false);
-    }
-    window.addEventListener("mousedown", click);
-    return () => window.removeEventListener("mousedown", click);
-  }, []);
-
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        onClick={() => setOpen(!open)}
-        className={`group h-9 min-h-9 rounded-full border flex items-center gap-2 px-2.5 sm:pr-3 sm:pl-2.5 text-xs font-bold transition-all cursor-pointer shadow-sm ${
-          variant === "dark"
-            ? open
-              ? "bg-white border-white text-primary shadow-md ring-2 ring-white/70"
-              : "bg-white border-white text-gray-900 hover:bg-gray-50 hover:border-gray-100"
-            : open
-              ? "bg-white shadow-lg border-primary/30 text-primary"
-              : "bg-white border-gray-200 text-gray-800 hover:bg-gray-50"
-        }`}
-      >
-        <span
-          className={`text-lg leading-none w-8 h-8 shrink-0 flex items-center justify-center rounded-full border ${
-            variant === "dark"
-              ? "bg-gray-50 border-gray-200"
-              : "bg-gray-50 border-gray-100"
-          }`}
-          aria-hidden
-        >
-          {current.flag}
-        </span>
-        <span className="hidden min-w-0 truncate text-left text-[12px] font-extrabold tracking-tight text-gray-900 sm:block">
-          {current.label}
-        </span>
-        <span className="sm:hidden text-[11px] font-extrabold uppercase tracking-wide text-gray-900">
-          {locale.split("-")[0]}
-        </span>
-        <ChevronDown
-          size={14}
-          strokeWidth={2.25}
-          className={`shrink-0 text-gray-600 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            variants={dropdownVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className={`absolute mt-3 w-56 bg-white rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border border-gray-100 z-[1001] overflow-hidden p-2 ${isRtl ? "left-0" : "right-0"}`}
-          >
-            <p className="px-5 py-3 text-[9px] font-black text-gray-300 uppercase tracking-[0.2em] mb-1">
-              {label}
-            </p>
-            {languages.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => {
-                  setOpen(false);
-                  router.replace(pathname, { locale: l.code });
-                }}
-                className={`w-full px-5 py-3.5 rounded-xl text-sm font-bold flex items-center gap-4 transition-all cursor-pointer ${isRtl ? "text-right" : "text-left"} ${locale === l.code ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-50"}`}
-              >
-                <span className="text-xl">{l.flag}</span> {l.label}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function MobileNavMenu({
-  closeAll,
-  isRtl,
-  surface = "dark",
-}: {
-  closeAll: () => void;
-  isRtl: boolean;
-  surface?: "dark" | "light";
-}) {
-  const locale = useLocale() as SupportedLocale;
-  const safeLocale: SupportedLocale =
-    locale === "ps" || locale === "fa-AF" ? locale : "en";
-  const copy = headerCopy[safeLocale];
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const navLinks = [
-    { href: "/baby-packages", label: copy.babyCare, icon: <Baby size={18} /> },
-    {
-      href: "/deals",
-      label: copy.dailyDeals,
-      icon: <Zap size={18} />,
-      highlight: true,
-    },
-    { href: "/contact", label: copy.support, icon: <HelpCircle size={18} /> },
-  ];
-
-  return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`shrink-0 flex items-center gap-1 px-1.5 min-[360px]:px-2 py-1 rounded-full border transition-all ${
-          surface === "light"
-            ? isOpen
-              ? "bg-primary border-primary text-white shadow-md"
-              : "bg-gray-100 border-gray-200 text-gray-800 hover:bg-gray-200"
-            : isOpen
-              ? "bg-white border-white text-primary shadow-lg"
-              : "bg-white/10 border-white/20 text-white hover:bg-white/20"
-        }`}
-      >
-        <span className="text-[10px] min-[360px]:text-[11px] sm:text-[13px] font-bold">{copy.more}</span>
-        <ChevronDown
-          size={12}
-          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.96 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={`absolute top-full mt-2 w-48 sm:w-52 max-w-[calc(100vw-1rem)] bg-white rounded-xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] z-[1002] overflow-hidden border border-gray-100 ${isRtl ? "left-0" : "right-0"}`}
-            style={{ transformOrigin: isRtl ? "top left" : "top right" }}
-          >
-            <div className="p-2">
-              <p className="px-3 py-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">
-                {copy.quickLinks}
-              </p>
-              {navLinks.map((link, index) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => {
-                      setIsOpen(false);
-                      closeAll();
-                    }}
-                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-all group"
-                  >
-                    <div
-                      className={`w-9 h-9 flex items-center justify-center rounded-lg ${
-                        link.highlight
-                          ? "bg-yellow-50 text-yellow-600"
-                          : "bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary"
-                      } transition-colors`}
-                    >
-                      {link.icon}
-                    </div>
-                    <span className="font-semibold text-gray-700 text-[14px]">
-                      {link.label}
-                    </span>
-                    {link.highlight && (
-                      <span
-                        className="ml-auto text-[9px] font-black text-white px-1.5 py-0.5 rounded-full"
-                        style={{ backgroundColor: "var(--yellow)" }}
-                      >
-                        {copy.hot}
-                      </span>
-                    )}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function IconButton({
-  children,
-  badge,
-  onClick,
-  active,
-  accent = "secondary",
-  surface = "default",
-  "aria-label": ariaLabel,
-}: {
-  children: ReactNode;
-  badge?: string;
-  onClick?: () => void;
-  active?: boolean;
-  accent?: "primary" | "secondary";
-  surface?: "default" | "dark";
-  "aria-label"?: string;
-}) {
-  const accentBgClass = accent === "primary" ? "bg-primary" : "bg-[var(--secondary)]";
-  const accentTextClass = accent === "primary" ? "text-primary" : "text-[var(--secondary)]";
-  const accentRingClass = accent === "primary" ? "ring-primary" : "ring-[var(--secondary)]";
-  const idleSurface =
-    surface === "dark"
-      ? "border-white/20 bg-white/10 text-white hover:bg-white/20 hover:border-white/35"
-      : "border-gray-100 bg-white hover:bg-gray-50 text-gray-600 hover:text-primary hover:border-primary/30";
-  const badgeRing = surface === "dark" ? "ring-zinc-950" : "ring-white";
-
-  return (
-    <button
-      onClick={onClick}
-      aria-label={ariaLabel}
-      className={`relative h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full border transition-all duration-300 group active:scale-90 cursor-pointer ${active ? "bg-primary border-primary text-white shadow-xl shadow-primary/30" : idleSurface}`}
-    >
-      {children}
-      {badge && (
-        <span
-          className={`absolute -top-1 -right-1 text-[10px] font-black min-w-5 h-5 flex items-center justify-center rounded-full ring-2 shadow-md transition-all ${active ? `bg-white ${accentTextClass} ${accentRingClass}` : `${accentBgClass} text-white ${badgeRing}`}`}
-        >
-          {badge}
-        </span>
-      )}
-    </button>
-  );
-}
 

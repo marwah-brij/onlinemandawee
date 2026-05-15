@@ -2,7 +2,7 @@ import type { OtpPurpose } from "@/domain/auth/otp-purpose";
 import { prisma } from "@/lib/db/prisma";
 
 export class OtpCodeRepository {
-  invalidateActive(phone: string, purpose: OtpPurpose) {
+  invalidateActiveForPhone(phone: string, purpose: OtpPurpose) {
     return prisma.otpCode.deleteMany({
       where: {
         phone,
@@ -12,18 +12,25 @@ export class OtpCodeRepository {
     });
   }
 
+  invalidateActiveForEmail(email: string, purpose: OtpPurpose) {
+    return prisma.otpCode.deleteMany({
+      where: { email, purpose },
+    });
+  }
+
   create(input: {
-    phone: string;
+    phone?: string | null;
+    email?: string | null;
     purpose: OtpPurpose;
     codeHash: string;
     expiresAt: Date;
   }) {
     return prisma.otpCode.create({
-      data: input,
+      data: { ...input, consumedAt: null },
     });
   }
 
-  findLatestActive(phone: string, purpose: OtpPurpose) {
+  findLatestActiveForPhone(phone: string, purpose: OtpPurpose) {
     return prisma.otpCode.findFirst({
       where: {
         phone,
@@ -32,6 +39,34 @@ export class OtpCodeRepository {
         expiresAt: {
           gt: new Date(),
         },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  findLatestActiveForEmail(email: string, purpose: OtpPurpose) {
+    return prisma.otpCode.findFirst({
+      where: {
+        email,
+        purpose,
+        consumedAt: null,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  findLatestForEmail(email: string, purpose: OtpPurpose) {
+    return prisma.otpCode.findFirst({
+      where: {
+        email,
+        purpose,
       },
       orderBy: {
         createdAt: "desc",

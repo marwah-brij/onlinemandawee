@@ -6,10 +6,25 @@ import {
   payoutMethodTypes,
 } from "@/domain/vendor/vendor-types";
 import { vendorStatuses } from "@/domain/vendor/vendor-status";
+import { normalizeEmailForAuth } from "@/lib/utils/normalize-email";
+
+const vendorOnboardingEmailField = z.preprocess(
+  (v) => (typeof v === "string" ? normalizeEmailForAuth(v) : v),
+  z.email().max(255)
+);
+
+export const vendorEmailSendCodeSchema = z.object({
+  email: vendorOnboardingEmailField,
+});
+
+export const vendorEmailVerifyCodeSchema = z.object({
+  email: vendorOnboardingEmailField,
+  code: z.string().trim().regex(/^\d{6}$/),
+});
 
 export const startVendorOnboardingSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
-  email: z.email().max(255),
+  email: vendorOnboardingEmailField,
   phone: z.string().trim().min(8).max(20),
   password: z.string().min(8).max(128),
   verificationToken: z.string().min(20),
@@ -42,7 +57,6 @@ export const vendorPayoutSchema = z
     accountName: z.string().trim().min(2).max(120).optional(),
     accountNumberOrIban: z.string().trim().min(5).max(80).optional(),
     bankName: z.string().trim().min(2).max(120).optional(),
-    paypalEmail: z.email().max(255).optional(),
     stripeEmail: z.email().max(255).optional(),
   })
   .superRefine((value, ctx) => {
@@ -70,14 +84,6 @@ export const vendorPayoutSchema = z
           message: "Bank name is required for bank payouts",
         });
       }
-    }
-
-    if (value.method === "PAYPAL" && !value.paypalEmail) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["paypalEmail"],
-        message: "PayPal email is required for PayPal payouts",
-      });
     }
 
     if (value.method === "STRIPE" && !value.stripeEmail) {

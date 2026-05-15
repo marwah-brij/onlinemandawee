@@ -28,7 +28,10 @@ export class OtpService {
       `${input.phone}:${input.purpose}:${otpCode}:${env.OTP_PEPPER}`
     );
 
-    await this.otpCodeRepository.invalidateActive(input.phone, input.purpose);
+    await this.otpCodeRepository.invalidateActiveForPhone(
+      input.phone,
+      input.purpose
+    );
     await this.otpCodeRepository.create({
       phone: input.phone,
       purpose: input.purpose,
@@ -45,7 +48,7 @@ export class OtpService {
   }
 
   async verifyOtp(input: VerifyOtpInput) {
-    const otpCode = await this.otpCodeRepository.findLatestActive(
+    const otpCode = await this.otpCodeRepository.findLatestActiveForPhone(
       input.phone,
       input.purpose
     );

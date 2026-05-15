@@ -4,7 +4,7 @@ export const kycDocumentTypes = [
   "DRIVERS_LICENSE",
   "NATIONAL_ID",
 ] as const;
-export const payoutMethodTypes = ["BANK", "PAYPAL", "STRIPE"] as const;
+export const payoutMethodTypes = ["BANK", "STRIPE"] as const;
 
 export type BusinessType = (typeof businessTypes)[number];
 export type KycDocumentType = (typeof kycDocumentTypes)[number];
