@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 
-import type { BusinessType } from "@/domain/vendor/vendor-types";
+import type { BusinessType, IndustryType } from "@/domain/vendor/vendor-types";
 import type {
   VendorOnboardingStep,
 } from "@/domain/vendor/vendor-onboarding-step";
@@ -56,6 +56,7 @@ export class VendorProfileRepository {
     storeName: string;
     storeSlug: string;
     businessType: BusinessType;
+    industryType?: IndustryType;
     logoUrl?: string;
     description?: string;
     onboardingStep: VendorOnboardingStep;
@@ -69,6 +70,7 @@ export class VendorProfileRepository {
         storeName: input.storeName,
         storeSlug: input.storeSlug,
         businessType: input.businessType,
+        industryType: input.industryType ?? null,
         logoUrl: input.logoUrl ?? null,
         description: input.description ?? null,
         onboardingStep: input.onboardingStep,

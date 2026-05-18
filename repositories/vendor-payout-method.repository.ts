@@ -5,10 +5,10 @@ export class VendorPayoutMethodRepository {
   upsert(input: {
     vendorProfileId: string;
     method: PayoutMethodType;
-    accountName?: string;
-    accountNumberOrIban?: string;
-    bankName?: string;
-    stripeEmail?: string;
+    accountName: string | null;
+    accountNumberOrIban: string | null;
+    bankName: string | null;
+    stripeEmail: string | null;
   }) {
     return prisma.vendorPayoutMethod.upsert({
       where: {
@@ -16,18 +16,18 @@ export class VendorPayoutMethodRepository {
       },
       update: {
         method: input.method,
-        accountName: input.accountName ?? null,
-        accountNumberOrIban: input.accountNumberOrIban ?? null,
-        bankName: input.bankName ?? null,
-        stripeEmail: input.stripeEmail ?? null,
+        accountName: input.accountName,
+        accountNumberOrIban: input.accountNumberOrIban,
+        bankName: input.bankName,
+        stripeEmail: input.stripeEmail,
       },
       create: {
         vendorProfileId: input.vendorProfileId,
         method: input.method,
-        accountName: input.accountName ?? null,
-        accountNumberOrIban: input.accountNumberOrIban ?? null,
-        bankName: input.bankName ?? null,
-        stripeEmail: input.stripeEmail ?? null,
+        accountName: input.accountName,
+        accountNumberOrIban: input.accountNumberOrIban,
+        bankName: input.bankName,
+        stripeEmail: input.stripeEmail,
       },
     });
   }

@@ -1,5 +1,5 @@
 import type { AuthenticatedUser } from "@/domain/auth/authenticated-user";
-import type { BusinessType, PayoutMethodType } from "@/domain/vendor/vendor-types";
+import type { BusinessType, IndustryType, PayoutMethodType } from "@/domain/vendor/vendor-types";
 import { AppError } from "@/lib/errors/app-error";
 import { ERROR_CODE } from "@/lib/errors/error-codes";
 import { slugify } from "@/lib/utils/slug";
@@ -10,6 +10,7 @@ import { VendorProfileRepository } from "@/repositories/vendor-profile.repositor
 type UpdateBusinessInfoInput = {
   storeName: string;
   businessType: BusinessType;
+  industryType?: IndustryType;
   logoUrl?: string;
   description?: string;
 };
@@ -21,6 +22,18 @@ type UpdatePayoutInput = {
   bankName?: string;
   stripeEmail?: string;
 };
+
+/** PATCH body omits unchanged sections; keep DB values instead of writing null. */
+function mergeTrimmedPayoutField(
+  incoming: string | undefined,
+  previous: string | null | undefined
+): string | null {
+  if (incoming !== undefined) {
+    const t = incoming.trim();
+    return t === "" ? null : t;
+  }
+  return previous ?? null;
+}
 
 export class VendorProfileService {
   constructor(
@@ -37,6 +50,7 @@ export class VendorProfileService {
       storeName: vendor.storeName ?? "",
       storeSlug: vendor.storeSlug ?? "",
       businessType: vendor.businessType,
+      industryType: vendor.industryType ?? null,
       logoUrl: vendor.logoUrl ?? "",
       description: vendor.description ?? "",
       status: vendor.status,
@@ -75,6 +89,7 @@ export class VendorProfileService {
       storeName: input.storeName,
       storeSlug,
       businessType: input.businessType,
+      industryType: input.industryType,
       logoUrl: input.logoUrl ?? vendor.logoUrl ?? undefined,
       description: input.description,
       onboardingStep: vendor.onboardingStep,
@@ -92,6 +107,7 @@ export class VendorProfileService {
       storeName: updated.storeName,
       storeSlug: updated.storeSlug,
       businessType: updated.businessType,
+      industryType: updated.industryType ?? null,
       logoUrl: updated.logoUrl ?? "",
       description: updated.description ?? "",
     };
@@ -99,14 +115,23 @@ export class VendorProfileService {
 
   async updatePayoutMethod(auth: AuthenticatedUser, input: UpdatePayoutInput) {
     const vendor = await this.requireActiveVendor(auth.id);
+    const existing = vendor.payoutMethod;
+
+    const accountName = mergeTrimmedPayoutField(input.accountName, existing?.accountName);
+    const accountNumberOrIban = mergeTrimmedPayoutField(
+      input.accountNumberOrIban,
+      existing?.accountNumberOrIban
+    );
+    const bankName = mergeTrimmedPayoutField(input.bankName, existing?.bankName);
+    const stripeEmail = mergeTrimmedPayoutField(input.stripeEmail, existing?.stripeEmail);
 
     await this.vendorPayoutMethodRepository.upsert({
       vendorProfileId: vendor.id,
       method: input.method,
-      accountName: input.accountName,
-      accountNumberOrIban: input.accountNumberOrIban,
-      bankName: input.bankName,
-      stripeEmail: input.stripeEmail,
+      accountName,
+      accountNumberOrIban,
+      bankName,
+      stripeEmail,
     });
 
     await this.auditLogRepository.create({

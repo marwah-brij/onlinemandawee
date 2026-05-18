@@ -123,6 +123,7 @@ export class VendorOnboardingService {
       storeName: input.storeName,
       storeSlug,
       businessType: input.businessType,
+      industryType: input.industryType,
       logoUrl: input.logoUrl,
       description: input.description,
       onboardingStep: "IDENTITY_VERIFICATION",
@@ -200,10 +201,10 @@ export class VendorOnboardingService {
     await this.vendorPayoutMethodRepository.upsert({
       vendorProfileId: vendorProfile.id,
       method: input.method,
-      accountName: input.accountName,
-      accountNumberOrIban: input.accountNumberOrIban,
-      bankName: input.bankName,
-      stripeEmail: input.stripeEmail,
+      accountName: input.accountName ?? null,
+      accountNumberOrIban: input.accountNumberOrIban ?? null,
+      bankName: input.bankName ?? null,
+      stripeEmail: input.stripeEmail ?? null,
     });
 
     const updated = await this.vendorProfileRepository.updateStep({
@@ -365,6 +366,7 @@ export class VendorOnboardingService {
       storeName: vendorProfile.storeName,
       storeSlug: vendorProfile.storeSlug,
       businessType: vendorProfile.businessType,
+      industryType: vendorProfile.industryType,
       onboardingStep: vendorProfile.onboardingStep,
       status: vendorProfile.status,
       submittedAt: vendorProfile.submittedAt?.toISOString() ?? null,
@@ -383,6 +385,7 @@ export class VendorOnboardingService {
       draft: {
         storeName: vendorProfile.storeName ?? "",
         businessType: vendorProfile.businessType,
+        industryType: vendorProfile.industryType,
         logoUrl: vendorProfile.logoUrl ?? "",
         description: vendorProfile.description ?? "",
         kyc: kycDoc

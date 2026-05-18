@@ -10,11 +10,15 @@ import {
   AlertCircle,
   ImageIcon,
   User,
+  Landmark,
+  Wallet,
 } from "lucide-react";
 
 import { useDashboardGuard } from "@/components/dashboard/use-dashboard-guard";
 import { parseApiResponse } from "@/lib/http/parse-api-response";
 import { toast } from "@/lib/utils/toast";
+import { industryTypes, industryTypeLabels } from "@/domain/vendor/vendor-types";
+import type { IndustryType } from "@/domain/vendor/vendor-types";
 
 /* ─── types ──────────────────────────────────────────────────────────── */
 
@@ -24,6 +28,7 @@ type VendorProfile = {
   storeName: string;
   storeSlug: string;
   businessType: "INDIVIDUAL" | "REGISTERED_BUSINESS" | null;
+  industryType: IndustryType | null;
   logoUrl: string;
   description: string;
   user: { fullName: string; email: string; phone: string };
@@ -91,6 +96,9 @@ function BusinessInfoTab({
   const [businessType, setBusinessType] = useState<"INDIVIDUAL" | "REGISTERED_BUSINESS">(
     profile.businessType ?? "INDIVIDUAL"
   );
+  const [industryType, setIndustryType] = useState<IndustryType | "">(
+    profile.industryType ?? ""
+  );
   const [description, setDescription] = useState(profile.description);
   const [logoUrl, setLogoUrl] = useState(profile.logoUrl);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -143,6 +151,7 @@ function BusinessInfoTab({
       const body: Record<string, unknown> = {
         storeName: storeName.trim(),
         businessType,
+        ...(industryType ? { industryType } : {}),
         ...(finalLogoUrl ? { logoUrl: finalLogoUrl } : {}),
         ...(description.trim() ? { description: description.trim() } : {}),
       };
@@ -274,6 +283,28 @@ function BusinessInfoTab({
             </select>
           </div>
 
+          {/* Industry type */}
+          <div className={FIELD}>
+            <label htmlFor="industry-type" className={LABEL}>
+              Industry type
+              <span className="ml-1 font-normal normal-case text-neutral-400">(optional)</span>
+            </label>
+            <select
+              id="industry-type"
+              className={CONTROL}
+              value={industryType}
+              onChange={(e) => setIndustryType(e.target.value as IndustryType | "")}
+            >
+              <option value="">— Select industry —</option>
+              {industryTypes.map((t) => (
+                <option key={t} value={t}>
+                  {industryTypeLabels[t]}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-neutral-400">Helps customers find your store by category.</p>
+          </div>
+
           {/* Description */}
           <div className={FIELD}>
             <label htmlFor="store-desc" className={LABEL}>
@@ -310,9 +341,11 @@ function BusinessInfoTab({
 function PayoutDetailsTab({
   profile,
   token,
+  onPayoutSaved,
 }: {
   profile: VendorProfile;
   token: string;
+  onPayoutSaved?: () => void;
 }) {
   const pm = profile.payoutMethod;
   const [preferredMethod, setPreferredMethod] = useState<PayoutMethod>(pm?.method ?? "BANK");
@@ -322,37 +355,68 @@ function PayoutDetailsTab({
   const [paypalEmail, setPaypalEmail] = useState(pm?.stripeEmail ?? "");
   const [saving, setSaving] = useState(false);
 
-  const hasBankDetails = accountName.trim() || accountNumber.trim() || bankName.trim();
-  const hasDigitalDetails = paypalEmail.trim();
+  useEffect(() => {
+    const next = profile.payoutMethod;
+    setPreferredMethod(next?.method ?? "BANK");
+    setAccountName(next?.accountName ?? "");
+    setAccountNumber(next?.accountNumberOrIban ?? "");
+    setBankName(next?.bankName ?? "");
+    setPaypalEmail(next?.stripeEmail ?? "");
+  }, [
+    profile.payoutMethod?.method,
+    profile.payoutMethod?.accountName,
+    profile.payoutMethod?.accountNumberOrIban,
+    profile.payoutMethod?.bankName,
+    profile.payoutMethod?.stripeEmail,
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!hasBankDetails && !hasDigitalDetails) {
-      toast.error("No details entered", "Fill in at least one payout method.");
-      return;
+    // Preferred method fields are mandatory; the other method can be left blank.
+    if (preferredMethod === "STRIPE") {
+      if (!paypalEmail.trim()) {
+        toast.error("Email required", "PayPal / Stripe email is required because it is your preferred payout method.");
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail.trim())) {
+        toast.error("Invalid email", "Enter a valid PayPal or Stripe email address.");
+        return;
+      }
+    } else {
+      // BANK is preferred
+      if (!accountName.trim()) {
+        toast.error("Account name required", "Account holder name is required for your preferred bank payout.");
+        return;
+      }
+      if (!accountNumber.trim()) {
+        toast.error("Account number required", "Account number or IBAN is required for your preferred bank payout.");
+        return;
+      }
+      if (!bankName.trim()) {
+        toast.error("Bank name required", "Bank name is required for your preferred bank payout.");
+        return;
+      }
     }
-    if (hasBankDetails) {
-      if (!accountName.trim()) { toast.error("Account name", "Account holder name is required for bank payout."); return; }
-      if (!accountNumber.trim()) { toast.error("Account number", "Account number or IBAN is required for bank payout."); return; }
-      if (!bankName.trim()) { toast.error("Bank name", "Bank name is required for bank payout."); return; }
-    }
-    if (hasDigitalDetails && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail.trim())) {
-      toast.error("Email", "Enter a valid PayPal or Stripe email address.");
+
+    // Non-preferred Stripe email, if provided, must be a valid email
+    if (preferredMethod === "BANK" && paypalEmail.trim() &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail.trim())) {
+      toast.error("Invalid email", "Enter a valid PayPal or Stripe email address.");
       return;
     }
 
     setSaving(true);
     try {
-      const body: Record<string, unknown> = { method: preferredMethod };
-      if (hasBankDetails) {
-        body.accountName = accountName.trim();
-        body.accountNumberOrIban = accountNumber.trim();
-        body.bankName = bankName.trim();
-      }
-      if (hasDigitalDetails) {
-        body.stripeEmail = paypalEmail.trim();
-      }
+      // Always send every field so the backend can set cleared fields to null.
+      // Omitting a field would make the merge helper keep the old DB value.
+      const body: Record<string, unknown> = {
+        method: preferredMethod,
+        accountName: accountName.trim(),
+        accountNumberOrIban: accountNumber.trim(),
+        bankName: bankName.trim(),
+        stripeEmail: paypalEmail.trim(),
+      };
 
       const res = await fetch("/api/vendor/profile/payout", {
         method: "PATCH",
@@ -363,7 +427,8 @@ function PayoutDetailsTab({
         body: JSON.stringify(body),
       });
       await parseApiResponse(res);
-      toast.success("Saved", "Payout details updated successfully.");
+      toast.success("Saved", "Payout details updated.");
+      onPayoutSaved?.();
     } catch (e) {
       toast.error("Could not save", e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -373,52 +438,82 @@ function PayoutDetailsTab({
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-8">
-      {/* Preferred method picker */}
+      {/* PayPal / Stripe — first so wallet fields are never grouped under bank */}
       <div className={SECTION}>
-        <h2 className={SECTION_TITLE}>
-          <CreditCard className="mr-2 inline h-4 w-4 text-neutral-400" />
-          Preferred payout method
-        </h2>
-        <p className={SECTION_LEAD}>
-          You can fill in both methods below. Select which one we should use first when sending your earnings.
-        </p>
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {(["BANK", "STRIPE"] as const).map((m) => (
-            <label
-              key={m}
-              className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3.5 transition ${
-                preferredMethod === m
-                  ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                  : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
-              }`}
-            >
-              <input
-                type="radio"
-                name="preferred-method"
-                value={m}
-                checked={preferredMethod === m}
-                onChange={() => setPreferredMethod(m)}
-                className="h-4 w-4 accent-primary"
-              />
-              <div>
-                <p className="text-sm font-semibold text-neutral-900">
-                  {m === "BANK" ? "Foreign bank account" : "PayPal / Stripe"}
-                </p>
-                <p className="text-xs text-neutral-500">
-                  {m === "BANK" ? "International wire transfer" : "Digital wallet email"}
-                </p>
-              </div>
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-neutral-100 pb-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-500/10">
+              <Wallet className="h-5 w-5 text-violet-700" aria-hidden />
+            </div>
+            <div>
+              <h2 className={SECTION_TITLE}>PayPal / Stripe</h2>
+              <p className={SECTION_LEAD}>
+                Digital wallet payouts only — enter the email for your PayPal or Stripe account below.
+              </p>
+            </div>
+          </div>
+          <label className="flex cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100">
+            <input
+              type="radio"
+              name="preferred-method"
+              checked={preferredMethod === "STRIPE"}
+              onChange={() => setPreferredMethod("STRIPE")}
+              className="h-3.5 w-3.5 accent-primary"
+            />
+            Preferred method
+          </label>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-violet-200/90 bg-linear-to-br from-violet-50/90 to-white p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] sm:p-6">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-violet-800/90">
+            Wallet email
+          </p>
+          <div className={`${FIELD} mt-4`}>
+            <label htmlFor="paypal-email" className={`${LABEL} text-violet-950/80`}>
+              PayPal or Stripe email
             </label>
-          ))}
+            <input
+              id="paypal-email"
+              type="email"
+              autoComplete="email"
+              className={`${CONTROL} border-violet-200/80 bg-white focus:border-violet-400 focus:ring-violet-400/25`}
+              value={paypalEmail}
+              onChange={(e) => setPaypalEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+            <p className="text-xs leading-relaxed text-violet-900/70">
+              Use the same email you log in with on PayPal or the email linked to your Stripe account.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Bank account section — always visible */}
+      {/* Foreign bank — separate card; bank fields only */}
       <div className={SECTION}>
-        <h2 className={SECTION_TITLE}>Foreign bank account</h2>
-        <p className={SECTION_LEAD}>
-          International wire transfer. Leave blank if you only use a digital wallet.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-neutral-100 pb-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/10">
+              <Landmark className="h-5 w-5 text-sky-800" aria-hidden />
+            </div>
+            <div>
+              <h2 className={SECTION_TITLE}>Foreign bank account</h2>
+              <p className={SECTION_LEAD}>
+                Wire transfer details only — account holder, IBAN or account number, and bank name.
+              </p>
+            </div>
+          </div>
+          <label className="flex cursor-pointer items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100">
+            <input
+              type="radio"
+              name="preferred-method"
+              checked={preferredMethod === "BANK"}
+              onChange={() => setPreferredMethod("BANK")}
+              className="h-3.5 w-3.5 accent-primary"
+            />
+            Preferred method
+          </label>
+        </div>
+
         <div className="mt-6 flex flex-col gap-5">
           <div className={FIELD}>
             <label htmlFor="account-name" className={LABEL}>Account holder name</label>
@@ -456,32 +551,8 @@ function PayoutDetailsTab({
         </div>
       </div>
 
-      {/* Digital wallet section — always visible */}
-      <div className={SECTION}>
-        <h2 className={SECTION_TITLE}>PayPal / Stripe</h2>
-        <p className={SECTION_LEAD}>
-          Digital wallet payout. Leave blank if you only use a bank account.
-        </p>
-        <div className="mt-6">
-          <div className={FIELD}>
-            <label htmlFor="paypal-email" className={LABEL}>PayPal or Stripe email</label>
-            <input
-              id="paypal-email"
-              type="email"
-              className={CONTROL}
-              value={paypalEmail}
-              onChange={(e) => setPaypalEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-            <p className="text-xs text-neutral-400">
-              Enter the email linked to your PayPal or Stripe account.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="flex justify-end">
-        <SaveButton saving={saving} label="Save bank details" />
+        <SaveButton saving={saving} label="Save payout details" />
       </div>
     </form>
   );
@@ -496,10 +567,12 @@ export default function VendorSettingsPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = useCallback(async (opts?: { silent?: boolean }) => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
-    setDataLoading(true);
+    if (!opts?.silent) {
+      setDataLoading(true);
+    }
     setError(null);
     try {
       const res = await fetch("/api/vendor/profile", {
@@ -510,7 +583,9 @@ export default function VendorSettingsPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load profile.");
     } finally {
-      setDataLoading(false);
+      if (!opts?.silent) {
+        setDataLoading(false);
+      }
     }
   }, []);
 
@@ -587,7 +662,11 @@ export default function VendorSettingsPage() {
             onSaved={(updated) => setProfile((prev) => prev ? { ...prev, ...updated } : prev)}
           />
         ) : (
-          <PayoutDetailsTab profile={profile} token={token} />
+          <PayoutDetailsTab
+            profile={profile}
+            token={token}
+            onPayoutSaved={() => void fetchProfile({ silent: true })}
+          />
         )}
 
         {/* Saved indicator */}

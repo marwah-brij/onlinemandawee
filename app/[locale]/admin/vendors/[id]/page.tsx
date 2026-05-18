@@ -17,6 +17,7 @@ type VendorDetail = {
   storeName: string | null;
   storeSlug: string | null;
   businessType: string | null;
+  industryType: string | null;
   logoUrl: string | null;
   description: string | null;
   submittedAt: string | null;
@@ -88,6 +89,9 @@ const displayDate = (iso: string | null) => {
 const toErrorMessage = (error: unknown) =>
   error instanceof Error && error.message ? error.message : "Something went wrong";
 
+/** How often to pull fresh vendor data while this page is open (vendor payout edits, etc.). */
+const VENDOR_DETAIL_POLL_MS = 15_000;
+
 export default function AdminVendorDetailPage() {
   const params = useParams<{ id: string }>();
   const vendorId = params?.id;
@@ -98,17 +102,25 @@ export default function AdminVendorDetailPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const loadVendor = useCallback(async () => {
+  const loadVendor = useCallback(async (opts?: { silent?: boolean }) => {
     if (!vendorId) return;
-    setLoading(true);
+    if (!opts?.silent) {
+      setLoading(true);
+    }
     try {
-      const response = await fetchWithAuth(`/api/admin/vendors/${vendorId}`);
+      const response = await fetchWithAuth(`/api/admin/vendors/${vendorId}`, {
+        cache: "no-store",
+      });
       const data = await parseApiResponse<VendorDetail>(response);
       setVendor(data);
     } catch (error) {
-      toast.error("Failed to load vendor", toErrorMessage(error));
+      if (!opts?.silent) {
+        toast.error("Failed to load vendor", toErrorMessage(error));
+      }
     } finally {
-      setLoading(false);
+      if (!opts?.silent) {
+        setLoading(false);
+      }
     }
   }, [vendorId]);
 
@@ -117,6 +129,29 @@ export default function AdminVendorDetailPage() {
       void loadVendor();
     }
   }, [authLoading, user, vendorId, loadVendor]);
+
+  /** Keep payout / profile in sync when vendors edit Settings on another session or tab. */
+  useEffect(() => {
+    if (authLoading || !user || !vendorId || !vendor) return;
+
+    const poll = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void loadVendor({ silent: true });
+      }
+    }, VENDOR_DETAIL_POLL_MS);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        void loadVendor({ silent: true });
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      window.clearInterval(poll);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [authLoading, user, vendorId, vendor, loadVendor]);
 
   const submitAction = async () => {
     if (!vendor || !pendingAction) return;
@@ -211,6 +246,7 @@ export default function AdminVendorDetailPage() {
             <p>Phone: {vendor.user.phone}</p>
             <p>Store slug: {vendor.storeSlug ?? "—"}</p>
             <p>Business type: {vendor.businessType ?? "—"}</p>
+            <p>Industry type: {vendor.industryType ? vendor.industryType.replaceAll("_", " ") : "—"}</p>
             <p>Onboarding step: {vendor.onboardingStep.replaceAll("_", " ")}</p>
             <p>Submitted at: {displayDate(vendor.submittedAt)}</p>
             <p>Approved at: {displayDate(vendor.approvedAt)}</p>
@@ -277,7 +313,7 @@ export default function AdminVendorDetailPage() {
                     </div>
                     <div className="flex flex-wrap gap-x-2">
                       <dt className="font-medium text-neutral-500 shrink-0">Account / IBAN:</dt>
-                      <dd className="break-all font-mono text-xs text-neutral-800">
+                      <dd className="break-all text-neutral-800">
                         {vendor.payoutMethod.accountNumberOrIban ?? "—"}
                       </dd>
                     </div>

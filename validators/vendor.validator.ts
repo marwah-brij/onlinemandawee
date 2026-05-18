@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   businessTypes,
+  industryTypes,
   kycDocumentTypes,
   payoutMethodTypes,
 } from "@/domain/vendor/vendor-types";
@@ -35,6 +36,7 @@ export const startVendorOnboardingSchema = z.object({
 export const vendorStoreInformationSchema = z.object({
   storeName: z.string().trim().min(2).max(120),
   businessType: z.enum(businessTypes),
+  industryType: z.enum(industryTypes).optional(),
   logoUrl: z.url().max(2048).optional(),
   description: z.string().trim().max(500).optional(),
 });

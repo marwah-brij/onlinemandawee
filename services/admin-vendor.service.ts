@@ -50,6 +50,7 @@ export class AdminVendorService {
       storeName: vendor.storeName,
       storeSlug: vendor.storeSlug,
       businessType: vendor.businessType,
+      industryType: vendor.industryType ?? null,
       logoUrl: vendor.logoUrl,
       description: vendor.description,
       submittedAt: vendor.submittedAt?.toISOString() ?? null,

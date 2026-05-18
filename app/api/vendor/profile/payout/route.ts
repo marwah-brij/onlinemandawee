@@ -13,13 +13,42 @@ import { parseBody } from "@/validators/request";
  * Field-level required validation is handled on the client;
  * here we just ensure the types are correct and nothing overflows.
  */
-const profilePayoutSchema = z.object({
-  method: z.enum(payoutMethodTypes),
-  accountName: z.string().trim().max(120).optional(),
-  accountNumberOrIban: z.string().trim().max(80).optional(),
-  bankName: z.string().trim().max(120).optional(),
-  stripeEmail: z.email().max(255).optional(),
-});
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const profilePayoutSchema = z
+  .object({
+    method: z.enum(payoutMethodTypes),
+    accountName: z.string().trim().max(120).optional(),
+    accountNumberOrIban: z.string().trim().max(80).optional(),
+    bankName: z.string().trim().max(120).optional(),
+    // Empty string = clear this field; non-empty must be a valid email.
+    stripeEmail: z
+      .string()
+      .max(255)
+      .refine((v) => v === "" || EMAIL_RE.test(v), {
+        message: "Enter a valid PayPal or Stripe email address",
+      })
+      .optional(),
+  })
+  .superRefine((val, ctx) => {
+    // Preferred method's own fields are required.
+    if (val.method === "BANK") {
+      if (!val.accountName?.trim()) {
+        ctx.addIssue({ code: "custom", path: ["accountName"], message: "Account holder name is required for bank payout" });
+      }
+      if (!val.accountNumberOrIban?.trim()) {
+        ctx.addIssue({ code: "custom", path: ["accountNumberOrIban"], message: "Account number or IBAN is required for bank payout" });
+      }
+      if (!val.bankName?.trim()) {
+        ctx.addIssue({ code: "custom", path: ["bankName"], message: "Bank name is required for bank payout" });
+      }
+    }
+    if (val.method === "STRIPE") {
+      if (!val.stripeEmail?.trim()) {
+        ctx.addIssue({ code: "custom", path: ["stripeEmail"], message: "PayPal or Stripe email is required when it is the preferred method" });
+      }
+    }
+  });
 
 const vendorProfileService = new VendorProfileService();
 

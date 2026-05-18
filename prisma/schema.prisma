@@ -61,6 +61,26 @@ enum BusinessType {
   REGISTERED_BUSINESS
 }
 
+enum IndustryType {
+  BAKERY
+  CLOTHING
+  ELECTRONICS
+  FLORISTS
+  DRIED_FRUITS
+  CARPETS
+  FOOD_BEVERAGES
+  JEWELRY
+  HEALTH_BEAUTY
+  HOME_FURNITURE
+  SPORTS_OUTDOORS
+  BOOKS_STATIONERY
+  TOYS_GAMES
+  AUTOMOTIVE
+  HANDICRAFTS
+  AGRICULTURE
+  OTHER
+}
+
 enum KycDocumentType {
   PASSPORT
   DRIVERS_LICENSE
@@ -278,6 +298,7 @@ model VendorProfile {
   storeName                String?
   storeSlug                String?              @unique
   businessType             BusinessType?
+  industryType             IndustryType?
   logoUrl                  String?
   description              String?
   onboardingStep           VendorOnboardingStep @default(ACCOUNT_SETUP)

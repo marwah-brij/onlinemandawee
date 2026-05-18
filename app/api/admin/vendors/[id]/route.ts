@@ -13,6 +13,14 @@ export const GET = withErrorHandling(
     const params = parseParams(await context.params, vendorIdParamsSchema);
     const result = await adminVendorService.detail(params.id);
 
-    return NextResponse.json({ data: result }, { status: 200 });
+    return NextResponse.json(
+      { data: result },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "private, no-store, must-revalidate",
+        },
+      }
+    );
   })
 );

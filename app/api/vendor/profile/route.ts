@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { businessTypes } from "@/domain/vendor/vendor-types";
+import { businessTypes, industryTypes } from "@/domain/vendor/vendor-types";
 import { withErrorHandling } from "@/middlewares/with-error-handling";
 import { withRbac } from "@/middlewares/with-rbac";
 import { VendorProfileService } from "@/services/vendor-profile.service";
@@ -10,6 +10,7 @@ import { parseBody } from "@/validators/request";
 const updateBusinessInfoSchema = z.object({
   storeName: z.string().trim().min(2).max(120),
   businessType: z.enum(businessTypes),
+  industryType: z.enum(industryTypes).optional(),
   logoUrl: z.url().max(2048).optional(),
   description: z.string().trim().max(500).optional(),
 });

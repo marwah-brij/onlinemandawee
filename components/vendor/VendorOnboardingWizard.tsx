@@ -6,10 +6,12 @@ import { ChevronLeft, ChevronRight, Loader2, Sparkles } from "lucide-react";
 
 import {
   businessTypes,
+  industryTypes,
+  industryTypeLabels,
   kycDocumentTypes,
   payoutMethodTypes,
 } from "@/domain/vendor/vendor-types";
-import type { BusinessType, KycDocumentType, PayoutMethodType } from "@/domain/vendor/vendor-types";
+import type { BusinessType, IndustryType, KycDocumentType, PayoutMethodType } from "@/domain/vendor/vendor-types";
 import type { VendorUploadKind } from "@/domain/vendor/vendor-upload-kind";
 import { FileAttachmentField } from "@/components/vendor/onboarding/FileAttachmentField";
 import type { OnboardingStatusPayload } from "@/components/vendor/onboarding/types";
@@ -98,6 +100,7 @@ export function VendorOnboardingWizard() {
 
   const [storeName, setStoreName] = useState("");
   const [businessType, setBusinessType] = useState<BusinessType>("INDIVIDUAL");
+  const [industryType, setIndustryType] = useState<IndustryType | "">("");
   const [logoUrl, setLogoUrl] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
@@ -165,6 +168,9 @@ export function VendorOnboardingWizard() {
         setStoreName(draft.storeName);
         if (draft.businessType && businessTypes.includes(draft.businessType)) {
           setBusinessType(draft.businessType);
+        }
+        if (draft.industryType && industryTypes.includes(draft.industryType)) {
+          setIndustryType(draft.industryType);
         }
         setLogoUrl(draft.logoUrl);
         setDescription(draft.description);
@@ -424,6 +430,7 @@ export function VendorOnboardingWizard() {
         await patchJson("/api/vendor/onboarding/step-2-store", {
           storeName: storeName.trim(),
           businessType,
+          ...(industryType ? { industryType } : {}),
           ...(nextLogoUrl ? { logoUrl: nextLogoUrl } : {}),
           ...(descTrimmed ? { description: descTrimmed } : {}),
         });
@@ -912,6 +919,22 @@ export function VendorOnboardingWizard() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className={FIELD}>
+                <label className={LABEL}>Industry type</label>
+                <select
+                  className={CONTROL}
+                  value={industryType}
+                  onChange={(e) => setIndustryType(e.target.value as IndustryType | "")}
+                >
+                  <option value="">— Select industry —</option>
+                  {industryTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {industryTypeLabels[t]}
+                    </option>
+                  ))}
+                </select>
+                <p className={HINT}>Optional. Helps customers find your store.</p>
               </div>
               <FileAttachmentField
                 label="Logo (optional)"
