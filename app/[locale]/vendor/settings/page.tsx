@@ -315,37 +315,42 @@ function PayoutDetailsTab({
   token: string;
 }) {
   const pm = profile.payoutMethod;
-  const [method, setMethod] = useState<PayoutMethod>(pm?.method ?? "BANK");
+  const [preferredMethod, setPreferredMethod] = useState<PayoutMethod>(pm?.method ?? "BANK");
   const [accountName, setAccountName] = useState(pm?.accountName ?? "");
   const [accountNumber, setAccountNumber] = useState(pm?.accountNumberOrIban ?? "");
   const [bankName, setBankName] = useState(pm?.bankName ?? "");
   const [paypalEmail, setPaypalEmail] = useState(pm?.stripeEmail ?? "");
   const [saving, setSaving] = useState(false);
 
+  const hasBankDetails = accountName.trim() || accountNumber.trim() || bankName.trim();
+  const hasDigitalDetails = paypalEmail.trim();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (method === "BANK") {
-      if (!accountName.trim()) { toast.error("Account name", "Account name is required."); return; }
-      if (!accountNumber.trim()) { toast.error("Account number", "Account number or IBAN is required."); return; }
-      if (!bankName.trim()) { toast.error("Bank name", "Bank name is required."); return; }
+    if (!hasBankDetails && !hasDigitalDetails) {
+      toast.error("No details entered", "Fill in at least one payout method.");
+      return;
     }
-    if (method === "STRIPE") {
-      if (!paypalEmail.trim()) { toast.error("Email", "PayPal / Stripe email is required."); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail.trim())) {
-        toast.error("Email", "Enter a valid email address.");
-        return;
-      }
+    if (hasBankDetails) {
+      if (!accountName.trim()) { toast.error("Account name", "Account holder name is required for bank payout."); return; }
+      if (!accountNumber.trim()) { toast.error("Account number", "Account number or IBAN is required for bank payout."); return; }
+      if (!bankName.trim()) { toast.error("Bank name", "Bank name is required for bank payout."); return; }
+    }
+    if (hasDigitalDetails && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail.trim())) {
+      toast.error("Email", "Enter a valid PayPal or Stripe email address.");
+      return;
     }
 
     setSaving(true);
     try {
-      const body: Record<string, unknown> = { method };
-      if (method === "BANK") {
+      const body: Record<string, unknown> = { method: preferredMethod };
+      if (hasBankDetails) {
         body.accountName = accountName.trim();
         body.accountNumberOrIban = accountNumber.trim();
         body.bankName = bankName.trim();
-      } else {
+      }
+      if (hasDigitalDetails) {
         body.stripeEmail = paypalEmail.trim();
       }
 
@@ -358,7 +363,7 @@ function PayoutDetailsTab({
         body: JSON.stringify(body),
       });
       await parseApiResponse(res);
-      toast.success("Saved", "Payout method updated successfully.");
+      toast.success("Saved", "Payout details updated successfully.");
     } catch (e) {
       toast.error("Could not save", e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -368,118 +373,110 @@ function PayoutDetailsTab({
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-8">
+      {/* Preferred method picker */}
       <div className={SECTION}>
         <h2 className={SECTION_TITLE}>
           <CreditCard className="mr-2 inline h-4 w-4 text-neutral-400" />
-          Payout method
+          Preferred payout method
         </h2>
         <p className={SECTION_LEAD}>
-          Where we send your earnings. Account name must match your ID or business registration.
+          You can fill in both methods below. Select which one we should use first when sending your earnings.
         </p>
-
-        <div className="mt-6 flex flex-col gap-6">
-          {/* Method selector */}
-          <div className={FIELD}>
-            <label className={LABEL}>Payout type <RequiredMark /></label>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {(["BANK", "STRIPE"] as const).map((m) => (
-                <label
-                  key={m}
-                  className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3.5 transition ${
-                    method === m
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payout-method"
-                    value={m}
-                    checked={method === m}
-                    onChange={() => setMethod(m)}
-                    className="h-4 w-4 accent-primary"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-neutral-900">
-                      {m === "BANK" ? "Foreign bank account" : "PayPal / Stripe"}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      {m === "BANK"
-                        ? "International wire transfer (IBAN or account number)"
-                        : "Digital wallet — PayPal or Stripe email"}
-                    </p>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* BANK fields */}
-          {method === "BANK" && (
-            <div className="flex flex-col gap-5 rounded-xl border border-neutral-200 bg-neutral-50/60 p-5">
-              <div className={FIELD}>
-                <label htmlFor="account-name" className={LABEL}>
-                  Account holder name <RequiredMark />
-                </label>
-                <input
-                  id="account-name"
-                  className={CONTROL}
-                  value={accountName}
-                  onChange={(e) => setAccountName(e.target.value)}
-                  placeholder="Full legal name as on the bank account"
-                />
-              </div>
-              <div className={FIELD}>
-                <label htmlFor="account-number" className={LABEL}>
-                  Account number / IBAN <RequiredMark />
-                </label>
-                <input
-                  id="account-number"
-                  className={CONTROL}
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
-                  placeholder="e.g. GB29NWBK60161331926819"
-                />
-              </div>
-              <div className={FIELD}>
-                <label htmlFor="bank-name" className={LABEL}>
-                  Bank name <RequiredMark />
-                </label>
-                <input
-                  id="bank-name"
-                  className={CONTROL}
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder="e.g. Barclays, Standard Chartered"
-                />
-              </div>
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
-                <strong>International transfer note:</strong> Payouts are sent in USD. Your bank may apply conversion fees. Ensure the account accepts foreign wire transfers.
-              </div>
-            </div>
-          )}
-
-          {/* STRIPE / PayPal fields */}
-          {method === "STRIPE" && (
-            <div className="flex flex-col gap-5 rounded-xl border border-neutral-200 bg-neutral-50/60 p-5">
-              <div className={FIELD}>
-                <label htmlFor="paypal-email" className={LABEL}>
-                  PayPal or Stripe email <RequiredMark />
-                </label>
-                <input
-                  id="paypal-email"
-                  type="email"
-                  className={CONTROL}
-                  value={paypalEmail}
-                  onChange={(e) => setPaypalEmail(e.target.value)}
-                  placeholder="you@example.com"
-                />
-                <p className="text-xs text-neutral-400">
-                  Enter the email linked to your PayPal or Stripe account.
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {(["BANK", "STRIPE"] as const).map((m) => (
+            <label
+              key={m}
+              className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3.5 transition ${
+                preferredMethod === m
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                  : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+              }`}
+            >
+              <input
+                type="radio"
+                name="preferred-method"
+                value={m}
+                checked={preferredMethod === m}
+                onChange={() => setPreferredMethod(m)}
+                className="h-4 w-4 accent-primary"
+              />
+              <div>
+                <p className="text-sm font-semibold text-neutral-900">
+                  {m === "BANK" ? "Foreign bank account" : "PayPal / Stripe"}
+                </p>
+                <p className="text-xs text-neutral-500">
+                  {m === "BANK" ? "International wire transfer" : "Digital wallet email"}
                 </p>
               </div>
-            </div>
-          )}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Bank account section — always visible */}
+      <div className={SECTION}>
+        <h2 className={SECTION_TITLE}>Foreign bank account</h2>
+        <p className={SECTION_LEAD}>
+          International wire transfer. Leave blank if you only use a digital wallet.
+        </p>
+        <div className="mt-6 flex flex-col gap-5">
+          <div className={FIELD}>
+            <label htmlFor="account-name" className={LABEL}>Account holder name</label>
+            <input
+              id="account-name"
+              className={CONTROL}
+              value={accountName}
+              onChange={(e) => setAccountName(e.target.value)}
+              placeholder="Full legal name as on the bank account"
+            />
+          </div>
+          <div className={FIELD}>
+            <label htmlFor="account-number" className={LABEL}>Account number / IBAN</label>
+            <input
+              id="account-number"
+              className={CONTROL}
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              placeholder="e.g. GB29NWBK60161331926819"
+            />
+          </div>
+          <div className={FIELD}>
+            <label htmlFor="bank-name" className={LABEL}>Bank name</label>
+            <input
+              id="bank-name"
+              className={CONTROL}
+              value={bankName}
+              onChange={(e) => setBankName(e.target.value)}
+              placeholder="e.g. Barclays, Standard Chartered"
+            />
+          </div>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
+            <strong>Note:</strong> Payouts are sent in USD. Your bank may apply conversion fees. Ensure the account accepts foreign wire transfers.
+          </div>
+        </div>
+      </div>
+
+      {/* Digital wallet section — always visible */}
+      <div className={SECTION}>
+        <h2 className={SECTION_TITLE}>PayPal / Stripe</h2>
+        <p className={SECTION_LEAD}>
+          Digital wallet payout. Leave blank if you only use a bank account.
+        </p>
+        <div className="mt-6">
+          <div className={FIELD}>
+            <label htmlFor="paypal-email" className={LABEL}>PayPal or Stripe email</label>
+            <input
+              id="paypal-email"
+              type="email"
+              className={CONTROL}
+              value={paypalEmail}
+              onChange={(e) => setPaypalEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+            <p className="text-xs text-neutral-400">
+              Enter the email linked to your PayPal or Stripe account.
+            </p>
+          </div>
         </div>
       </div>
 
