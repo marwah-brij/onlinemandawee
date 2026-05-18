@@ -19,6 +19,11 @@ type AuthenticatedRouteHandler<
   TContext extends AuthenticatedRouteContext = AuthenticatedRouteContext,
 > = (request: NextRequest, context: TContext) => Promise<Response>;
 
+type WithAuthOptions = {
+  /** When true, PENDING vendors are allowed through (used for onboarding routes). */
+  allowPendingVendor?: boolean;
+};
+
 const extractBearerToken = (authorizationHeader: string | null) => {
   if (!authorizationHeader) {
     throw new AppError({
@@ -44,7 +49,8 @@ const extractBearerToken = (authorizationHeader: string | null) => {
 export const withAuth = <
   TContext extends RouteContext = RouteContext,
 >(
-  handler: AuthenticatedRouteHandler<TContext & { auth: AuthenticatedUser }>
+  handler: AuthenticatedRouteHandler<TContext & { auth: AuthenticatedUser }>,
+  options?: WithAuthOptions
 ) => {
   return async (request: NextRequest, context: TContext) => {
     const token = extractBearerToken(request.headers.get("authorization"));
@@ -73,7 +79,7 @@ export const withAuth = <
         statusCode: 403,
       });
     }
-    if (user.role === "VENDOR" && user.status !== "ACTIVE") {
+    if (!options?.allowPendingVendor && user.role === "VENDOR" && user.status !== "ACTIVE") {
       throw new AppError({
         code: ERROR_CODE.FORBIDDEN,
         message:

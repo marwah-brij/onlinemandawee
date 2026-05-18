@@ -17,5 +17,5 @@ export const PATCH = withErrorHandling(
     );
 
     return NextResponse.json({ data: result }, { status: 200 });
-  })
+  }, { allowPendingVendor: true })
 );

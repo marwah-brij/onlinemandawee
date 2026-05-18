@@ -10,5 +10,5 @@ export const POST = withErrorHandling(
   withRbac(["VENDOR"], async (_request, context) => {
     const result = await vendorOnboardingService.submit(context.auth);
     return NextResponse.json({ data: result }, { status: 200 });
-  })
+  }, { allowPendingVendor: true })
 );

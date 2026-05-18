@@ -14,5 +14,5 @@ export const PATCH = withErrorHandling(
     const result = await vendorOnboardingService.saveAddress(context.auth, input);
 
     return NextResponse.json({ data: result }, { status: 200 });
-  })
+  }, { allowPendingVendor: true })
 );

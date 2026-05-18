@@ -10,5 +10,5 @@ export const GET = withErrorHandling(
   withRbac(["VENDOR"], async (_request, context) => {
     const result = await vendorOnboardingService.getStatus(context.auth);
     return NextResponse.json({ data: result }, { status: 200 });
-  })
+  }, { allowPendingVendor: true })
 );

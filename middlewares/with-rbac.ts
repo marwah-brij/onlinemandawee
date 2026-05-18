@@ -18,11 +18,17 @@ type AuthorizedRouteHandler<
   TContext extends AuthorizedRouteContext = AuthorizedRouteContext,
 > = (request: NextRequest, context: TContext) => Promise<Response>;
 
+type WithRbacOptions = {
+  /** When true, PENDING vendors are allowed through (used for onboarding routes). */
+  allowPendingVendor?: boolean;
+};
+
 export const withRbac = <
   TContext extends RouteContext = RouteContext,
 >(
   allowedRoles: Role[],
-  handler: AuthorizedRouteHandler<TContext & { auth: AuthenticatedUser }>
+  handler: AuthorizedRouteHandler<TContext & { auth: AuthenticatedUser }>,
+  options?: WithRbacOptions
 ) => {
   return withAuth(async (request, context) => {
     if (!allowedRoles.includes(context.auth.role)) {
@@ -34,5 +40,5 @@ export const withRbac = <
     }
 
     return handler(request, context as TContext & { auth: AuthenticatedUser });
-  });
+  }, options);
 };

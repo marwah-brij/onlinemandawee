@@ -50,5 +50,5 @@ export const POST = withErrorHandling(
     });
 
     return NextResponse.json({ data: result }, { status: 200 });
-  })
+  }, { allowPendingVendor: true })
 );
